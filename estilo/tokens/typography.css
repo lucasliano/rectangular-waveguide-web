@@ -1,0 +1,24 @@
+:root{
+--font-sans:Arial,Arimo,"Helvetica Neue",Helvetica,sans-serif;
+--font-display:var(--font-sans);
+--font-serif:"Computer Modern Serif","Latin Modern Roman","CMU Serif","STIX Two Text",Georgia,serif; /* formal-report body text only */
+
+--weight-regular:400;
+--weight-bold:700;
+
+/* Type scale — px on the 1920×1080 slide canvas (1pt = 2px). PPTX pt in comments. */
+--type-cover:96px;      /* 48pt · cover / closing title */
+--type-kpi:120px;       /* 60pt · metric value */
+--type-title:64px;      /* 32pt · slide title, panel status */
+--type-subtitle:36px;   /* 18pt · cover subtitle, agenda item, % value */
+--type-lead:30px;       /* 15pt · reading text in panels */
+--type-body-lg:28px;    /* 14pt · meta values, callout body */
+--type-body:26px;       /* 13pt · table cells, descriptions */
+--type-label:24px;      /* 12pt · labels, eyebrow, footer */
+
+--leading-tight:1.1;    /* titles (35.2pt on 32pt) */
+--leading-body:1.4;     /* labels/body (16.8pt on 12pt) */
+
+--tracking-eyebrow:3px; /* spc 150 = 1.5pt */
+--tracking-normal:0;
+}

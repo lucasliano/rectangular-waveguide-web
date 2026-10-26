@@ -1,0 +1,1550 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Lucas Liaño">
+<title>Guía de onda rectangular · Medios de Enlace</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<!-- UTN.BA design tokens (copies, see estilo/README.md) -->
+<link rel="stylesheet" href="estilo/tokens/fonts.css">
+<link rel="stylesheet" href="estilo/tokens/colors.css">
+<link rel="stylesheet" href="estilo/tokens/typography.css">
+<link rel="stylesheet" href="estilo/tokens/spacing.css">
+<link rel="stylesheet" href="estilo/tokens/base.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js"></script>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]], macros: { sen: "\\operatorname{sen}" } },
+  svg: { fontCache: "global" },
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<style>
+/* UTN.BA identity (tokens copied in estilo/tokens): warm paper and ink, bordó as the one accent,
+   Arial, square corners, structure from rules rather than boxes. Sizes are the slide scale halved for the web.
+   Light only: white page, stone panels, bordó accent. */
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --panel: var(--utn-stone-100);
+  --raised: #ffffff;          /* controls and cards sitting on a panel */
+  --fg: var(--utn-ink);
+  --muted: var(--utn-umber-600);
+  --faint: var(--utn-umber-400);
+  --line: var(--utn-stone-300);        /* hairlines */
+  --grid: var(--utn-grid);             /* table borders */
+  --grid-strong: var(--utn-grid-strong);
+  --head: var(--utn-stone-150);        /* table head fill */
+  --accent: var(--utn-red);
+  --accent-ink: var(--utn-paper);      /* text on bordó */
+  --band: var(--utn-stone-200);        /* single-mode band */
+  --chip: var(--utn-stone-150);
+  /* field maps: diverging slate ↔ stone ↔ bordó, sequential stone → bordó */
+  --div-neg: #1f4e8c; --div-neg2: #4f86c6; --div-neg3: #a9c6e8;
+  --div-mid: var(--utn-stone-100);
+  --ok: #1d7a3a; --bad: #c4261d;        /* propagating / evanescent */
+  --div-pos3: #e9a9b6; --div-pos2: #d0405f; --div-pos: #8e0b27;
+  --seq-1: #e9a9b6; --seq-2: #be0f34; --seq-3: #5c0719;
+  /* mode identity, validated for CVD (dataviz check): TE10 carries the bordó */
+  --s1: #be0f34; --s2: #2a78d6; --s3: #1baf7a; --s4: #eda100;
+  --s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #eb6834;
+  --other: var(--utn-umber-400);
+  /* 3D view */
+  --fE: #e3121e; --fH: #2a78d6; --fS: #b87800; --fJ: #1e8a5a; --stage: var(--utn-stone-150); --copper: #b8733f;
+  --sans: var(--font-sans);
+  --tab-w: 8px;                         /* signature bordó marker (16 × 112 on the slide canvas) */
+}
+* { box-sizing: border-box; border-radius: 0; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 400 15px/1.45 var(--sans); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
+main.wrap { padding-bottom: 48px; }
+h1, h2, h3 { font-family: var(--sans); font-weight: 700; text-wrap: balance; margin: 0; letter-spacing: 0; }
+h1 { font-size: clamp(32px, 5.2vw, 48px); line-height: 1.1; }
+h2 { font-size: clamp(24px, 3vw, 32px); line-height: 1.1; }
+h3 { font-size: 15px; line-height: 1.3; }
+p { margin: 0; }
+b { font-weight: 700; }
+.muted { color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; }
+.eyebrow { font: 700 12px/1.4 var(--sans); letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); }
+a { color: var(--accent); }
+
+/* running header: logo, group, title, chapter links, then the cross-section bar; solid paper, ink rule */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+nav.toc { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--fg); }
+nav.toc .wrap { display: flex; gap: 4px 18px; flex-wrap: wrap; align-items: center; padding-block: 10px; font-size: 13px; }
+nav.toc a { color: var(--muted); text-decoration: none; white-space: nowrap; }
+nav.toc a:hover, nav.toc a:focus-visible { color: var(--fg); }
+nav.toc .brand { display: flex; align-items: center; gap: 12px; margin-right: auto; color: var(--fg); font-weight: 700; font-size: 14px; }
+nav.toc a.brand:hover, nav.toc a.brand:focus-visible { color: var(--accent); }
+/* language switch, right end of the nav */
+nav.toc .langsw { margin-left: 6px; }
+nav.toc .langsw button { font-size: 12px; padding: 3px 9px; letter-spacing: 0.5px; }
+nav.toc .langsw { border-color: var(--accent); }
+nav.toc .langsw button { border-right-color: var(--accent); }
+nav.toc .langsw button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+nav.toc .brand .utn-logo { height: 30px; }
+nav.toc .brand .cat { padding-left: 12px; border-left: 1px solid var(--line); }
+nav.toc .brand .cat span { font-weight: 400; color: var(--muted); }
+.logo-text { display: none; font-weight: 700; }
+
+/* cover: full-height bordó bar on the left edge */
+.hero { position: relative; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 40px; align-items: center; padding-block: 56px 32px; }
+.hero::before { content: ""; position: absolute; left: calc(-1 * max(24px, env(safe-area-inset-left, 0px))); top: 0; bottom: 0; width: var(--tab-w); background: var(--accent); }
+.hero > div { min-width: 0; display: grid; gap: 16px; }
+.hero svg { width: 100%; height: auto; max-width: 100%; }
+/* Metric: rule on top, label, value, meta; one highlighted in bordó */
+.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin-top: 12px; }
+.fact { border-top: 2px solid var(--fg); padding-top: 12px; display: grid; gap: 4px; min-width: 0; }
+.fact.hl { border-top-color: var(--accent); }
+.fact .k { font-size: 13px; color: var(--muted); }
+.fact .v { font: 700 24px/1.1 var(--sans); font-variant-numeric: tabular-nums; }
+.fact.hl .v { color: var(--accent); }
+.fact .s { font-size: 12px; color: var(--muted); }
+
+/* chapters: eyebrow + title with the bordó tab flush to the page edge */
+section.chapter { display: grid; gap: 18px; padding-block: 48px 8px; scroll-margin-top: 112px; }
+.lede { position: relative; display: grid; gap: 10px; }
+.lede::before { content: ""; position: absolute; left: calc(-1 * max(24px, env(safe-area-inset-left, 0px))); top: 0; width: var(--tab-w); height: 56px; background: var(--accent); }
+.panel { background: var(--panel); padding: 20px; display: grid; gap: 16px; min-width: 0; align-content: start; }
+section.chapter > .panel:first-of-type { border-top: 2px solid var(--accent); }
+.cols2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.cols2 > * { min-width: 0; }
+.note { font-size: 13px; color: var(--muted); }
+/* formula: Callout, bordó rule on the left */
+.formula { font-size: 14px; background: var(--panel); border-left: 2px solid var(--accent); padding: 12px 16px; overflow-x: auto; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* controls: square, hairline; the selected state is ink, never a new colour */
+.controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; }
+.ctl { display: grid; gap: 4px; font-size: 12px; color: var(--muted); min-width: 0; max-width: 100%; }
+.ctl > span { font-weight: 700; letter-spacing: 0.5px; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--grid); background: var(--raised); }
+.seg button { border: 0; border-right: 1px solid var(--grid); background: transparent; color: var(--fg); font: 400 13px var(--sans); padding: 5px 10px; cursor: pointer; }
+.seg button:last-child { border-right: 0; }
+.seg button:hover { background: var(--chip); }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.seg button:focus-visible, select:focus-visible, input:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+select { font: 400 13px var(--sans); color: var(--fg); background: var(--raised); border: 1px solid var(--grid); padding: 5px 8px; }
+input[type=range] { width: 160px; accent-color: var(--accent); }
+.btn { border: 1px solid var(--fg); background: var(--raised); color: var(--fg); font: 700 13px var(--sans); padding: 6px 14px; cursor: pointer; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { background: var(--div-pos); border-color: var(--div-pos); }
+a.btn { display: inline-block; text-decoration: none; }
+.btn.cta { font-size: 15px; padding: 11px 20px; }
+.ctarow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 16px; }
+.ctarow .muted { font-size: 13px; }
+/* simulation chapter: steps, commands, options */
+.cmd { font: 13px ui-monospace, "Cascadia Mono", Consolas, monospace; background: var(--raised); border-left: 2px solid var(--accent); padding: 9px 14px; overflow-x: auto; white-space: nowrap; margin: 6px 0 0; }
+ol.steps { margin: 0; padding-left: 22px; display: grid; gap: 16px; }
+ol.steps > li::marker { font-weight: 700; color: var(--accent); }
+ol.steps > li > b { display: block; margin-bottom: 2px; }
+ul.plain { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+code { font: 0.92em ui-monospace, "Cascadia Mono", Consolas, monospace; }
+.readout { font: 700 13px var(--sans); color: var(--fg); font-variant-numeric: tabular-nums; }
+
+/* status: glyph shape carries the meaning (● propagates, ○ evanescent), always in ink */
+.pill { font-size: 12px; white-space: nowrap; color: var(--fg); }
+/* green / red status, still carried by the glyph for colour-blind readers */
+.pill.prop { color: var(--ok); }
+.pill.prop::before { content: "● "; }
+.pill.evan { color: var(--bad); }
+.pill.evan::before { content: "○ "; }
+
+/* mode atlas */
+.atlas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.mcard { border-top: 1px solid var(--fg); padding-top: 8px; display: grid; gap: 6px; min-width: 0; }
+.mcard header { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.mcard .name { font: 700 16px var(--sans); display: flex; align-items: center; gap: 6px; }
+.swatch { width: 10px; height: 10px; display: inline-block; flex: none; }
+.mcard canvas { width: 100%; height: auto; display: block; }
+.mcard .meta { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* field explorer */
+.stage3d { position: relative; overflow: hidden; background: var(--stage); border: 1px solid var(--line); }
+.stage3d canvas { display: block; width: 100%; height: clamp(300px, 52vw, 480px); touch-action: none; cursor: grab; }
+.stage3d canvas:active { cursor: grabbing; }
+.v3labels { position: absolute; inset: 0; pointer-events: none; }
+.v3labels span { position: absolute; transform: translate(-50%, -50%); font-size: 12px; color: var(--muted); white-space: nowrap; }
+.v3labels span.port { font-weight: 700; color: var(--accent); }
+.v3legend { position: absolute; left: 12px; top: 12px; display: grid; gap: 3px; font-size: 12px; color: var(--fg); background: var(--raised); border-top: 2px solid var(--fg); padding: 6px 10px; pointer-events: none; }
+.v3legend:empty { display: none; }
+.v3legend .v3src { color: var(--accent); }
+/* colour scale of the cut planes: vertical bars overlaid on the 3D stage, under the camera buttons */
+.v3cbar { position: absolute; right: 10px; top: 46px; display: flex; gap: 12px; background: var(--raised); border-top: 2px solid var(--fg); padding: 6px 10px 8px; pointer-events: none; }
+.v3cbar:empty { display: none; }
+.v3cbar .cb { display: grid; grid-template-columns: 12px auto; grid-template-rows: auto 1fr; column-gap: 5px; row-gap: 4px; font-size: 11px; }
+.v3cbar .cb .ttl { grid-column: 1 / -1; line-height: 1.25; color: var(--muted); white-space: nowrap; }
+.v3cbar .cb .ttl b { font-weight: 600; color: var(--fg); }
+.v3cbar .bar { height: clamp(90px, 18vw, 160px); border: 1px solid var(--line); }
+.v3cbar .bar.div { background: linear-gradient(0deg, var(--div-neg), var(--div-neg2), var(--div-neg3), var(--div-mid), var(--div-pos3), var(--div-pos2), var(--div-pos)); }
+.v3cbar .bar.seq { background: linear-gradient(0deg, var(--div-mid), var(--seq-1), var(--seq-2), var(--seq-3)); }
+.v3cbar .ticks { display: flex; flex-direction: column; justify-content: space-between; color: var(--muted); font-variant-numeric: tabular-nums; line-height: 1; margin-block: -1px; }
+.v3views { position: absolute; right: 10px; top: 10px; display: flex; border: 1px solid var(--grid); background: var(--raised); }
+.v3views button { border: 0; border-right: 1px solid var(--grid); background: transparent; color: var(--fg); font: 400 12px var(--sans); padding: 4px 9px; cursor: pointer; }
+.v3views button:last-child { border-right: 0; }
+.v3views button:hover { background: var(--fg); color: var(--bg); }
+.v3hint { position: absolute; left: 12px; right: 12px; bottom: 8px; margin: 0; font-size: 11px; color: var(--muted); pointer-events: none; }
+.sw { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; outline: 1px solid currentColor; }
+.fieldstage { display: grid; gap: 10px; }
+.fieldstage canvas { width: 100%; display: block; }
+
+/* cross-section bar */
+/* cross-section bar: hangs under the nav without taking layout space (no page jump when it appears),
+   hidden on the cover and shown once section 01 is reached */
+nav.toc .geodock { position: absolute; left: 0; right: 0; top: 100%; background: var(--bg); border-bottom: 1px solid var(--fg);
+  transition: opacity .2s, transform .2s, visibility .2s; }
+nav.toc .geodock[hidden] { display: block; opacity: 0; transform: translateY(-6px); visibility: hidden; pointer-events: none; }
+nav.toc .geobar { padding-block: 8px 10px; align-items: center; gap: 6px 18px; }
+.geobar .gt { font: 700 12px var(--sans); letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); }
+.gs { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); }
+.gs > span { font: italic 700 15px var(--sans); color: var(--fg); }
+.gs input { width: 170px; }
+.gs output { font: 700 13px var(--sans); font-variant-numeric: tabular-nums; color: var(--fg); min-width: 70px; }
+.gchips { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--grid); background: var(--raised); }
+.gchips button { border: 0; border-right: 1px solid var(--grid); background: transparent; color: var(--fg); font: 400 12px var(--sans); padding: 3px 9px; cursor: pointer; }
+.gchips button:last-child { border-right: 0; }
+.gchips button:hover { background: var(--chip); }
+.gchips button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+
+/* slice table: lines, no boxes */
+.slices { display: grid; }
+.slhead, .slrow { display: grid; grid-template-columns: 190px auto 190px minmax(170px, 1fr); gap: 6px 14px; align-items: center; }
+.slhead { font-size: 12px; font-weight: 700; color: var(--muted); padding-bottom: 6px; border-bottom: 1px solid var(--fg); }
+.slrow { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.slrow .chk { display: flex; gap: 8px; align-items: center; font-weight: 700; color: var(--fg); cursor: pointer; }
+.slrow input[type=checkbox], .slrow input[type=radio] { accent-color: var(--accent); }
+.slpos { display: flex; gap: 10px; align-items: center; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.slpos .pl { min-width: 86px; }
+.slpos input { flex: 1; min-width: 0; }
+.slfix { font-size: 12px; }
+.frq { display: inline-flex; align-items: center; gap: 8px; }
+.frq output { font: 700 13px var(--sans); color: var(--fg); font-variant-numeric: tabular-nums; min-width: 64px; }
+.eqs h3 { margin-top: 8px; }
+.eqs h3:first-child { margin-top: 0; }
+.eqs .formula { background: var(--raised); }
+.formula mjx-container[display="true"] { text-align: left !important; margin: 0 !important; }
+.formula { overflow-y: hidden; padding-block: 6px; }   /* tall fractions must not grow a vertical scrollbar: the room is on the formula */
+.formula mjx-container[display="true"] { padding-block: 10px !important; }
+.byline { font-size: 14px; color: var(--muted); }
+.byline b { color: var(--fg); }
+
+.cbar { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.cbar canvas { height: 10px; width: 220px; max-width: 50vw; }
+.small-multiples { display: grid; gap: 14px; }
+.smrow { display: grid; grid-template-columns: 120px minmax(0, 1fr) minmax(0, 0.32fr); gap: 12px; align-items: center; }
+.smrow .lbl { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.smrow .lbl b { font: 700 15px var(--sans); color: var(--fg); display: block; }
+.smrow canvas { width: 100%; display: block; }
+.plot { width: 100%; min-height: 340px; }
+
+/* DataTable: stone head with umber labels, grid borders, no zebra */
+table.data { border-collapse: collapse; font-size: 13px; width: 100%; }
+table.data th, table.data td { padding: 7px 10px; border: 1px solid var(--grid); text-align: left; vertical-align: top; }
+table.data th { color: var(--muted); font-weight: 400; background: var(--head); border-color: var(--grid-strong); }
+.tablebox { overflow-x: auto; }
+figure { margin: 0; display: grid; gap: 8px; }
+figure img { border: 1px solid var(--line); background: #fff; max-width: 100%; }
+figcaption { font-size: 12px; color: var(--muted); }
+figcaption b { color: var(--fg); }
+.loading { font-size: 13px; color: var(--muted); }
+
+/* running footer */
+footer.runner { border-top: 1px solid var(--line); }
+footer.runner .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; justify-content: space-between; padding-block: 18px 28px; font-size: 12px; color: var(--muted); }
+footer.runner .utn-logo { height: 44px; }
+
+@media (max-width: 860px) {
+  .wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .hero::before, .lede::before { left: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); width: 5px; }
+  .hero { grid-template-columns: minmax(0, 1fr); padding-block: 32px 12px; }
+  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .cols2 { grid-template-columns: minmax(0, 1fr); }
+  .atlas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .smrow { grid-template-columns: minmax(0, 1fr); }
+  .panel { padding: 14px; }
+  input[type=range] { width: 130px; }
+  nav.toc .wrap:first-child a:not(.brand), nav.toc .brand .cat span { display: none; }
+  .gs input { width: 110px; }
+  .slhead { display: none; }
+  .slrow { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<nav class="toc" aria-label="Secciones">
+  <div class="wrap">
+    <a class="brand" href="#inicio" title="Ir al inicio"><span class="utn-logo" role="img" aria-label="UTN.BA"></span><span class="logo-text">UTN.BA</span><span class="cat">Medios de Enlace <span>· Guía de onda rectangular</span></span></a>
+    <a href="#campos">Explorador de campos</a><a href="#modos">Modos</a><a href="#dispersion">Dispersión</a><a href="#modelo">Modelo</a><a href="#simulacion">Simulación</a>
+    <div class="seg langsw" id="langSw" role="group" aria-label="Idioma / Language"><button type="button" data-v="es" aria-pressed="true" lang="es">ES</button><button type="button" data-v="en" aria-pressed="false" lang="en">EN</button></div>
+  </div>
+  <div class="geodock" id="geoDock" hidden><div class="wrap geobar" role="group" aria-label="Sección transversal de la guía">
+    <span class="gt">Sección transversal</span>
+    <label class="gs"><span>a</span><input type="range" id="gA" list="gAl" aria-label="Pared ancha a (mm)"><datalist id="gAl"></datalist><output id="gAo"></output></label>
+    <label class="gs"><span>b</span><input type="range" id="gB" list="gBl" aria-label="Pared angosta b (mm)"><datalist id="gBl"></datalist><output id="gBo"></output></label>
+  </div></div>
+</nav>
+
+<main class="wrap">
+  <header class="hero" id="inicio" style="scroll-margin-top: 80px">
+    <div>
+      <span class="eyebrow">UTN.BA · Medios de Enlace</span>
+      <h1>Guía de onda rectangular</h1>
+      <p class="byline">Autor: <b>Lucas Liaño</b></p>
+      <p class="byline">Revisor: <b>Cristian Arrieta</b></p>
+      <p>Este sitio muestra cómo viaja una onda electromagnética dentro de una guía de onda rectangular: un paralelepípedo hueco de cobre de ancho <i>a</i>, alto <i>b</i> y largo <i>L</i>, excitado en el puerto 1 y terminado en el puerto 2.</p>
+      <p class="muted">El <b>explorador de campos</b> dibuja en 3D los campos E y H, el flujo de potencia S y la corriente en las paredes para cada modo, frecuencia y tamaño de guía. Después, <b>Modos</b> presenta los modos TE y TM y sus frecuencias de corte, <b>Dispersión</b> la constante de propagación γ = α + jβ, y <b>Modelo</b> las ecuaciones utilizadas. Desde la sección 01, los controles <b>a</b> y <b>b</b> que aparecen en la barra superior cambian la sección transversal en todo el sitio.</p>
+      <p class="muted">Todo lo que muestra el sitio se calcula en el navegador a partir de expresiones analíticas. Para comprobarlo con un simulador de onda completa, podés descargar un script que arma la misma guía en Ansys HFSS y deja lista la simulación.</p>
+      <div class="ctarow"><a class="btn primary cta" href="descargas/guia_onda_hfss.py" download>Descargar el script de HFSS</a><a href="#simulacion">Cómo usarlo</a></div>
+    </div>
+    <svg viewBox="0 0 460 300" role="img" aria-label="Esquema de la guía de onda: pared ancha a sobre x, pared angosta b sobre y, largo L sobre z desde el puerto 1 hasta el puerto 2">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+        <marker id="dm" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" fill="var(--fg)"/></marker>
+      </defs>
+      <!-- box: front face (port 1) at left, extruded to the upper right along z -->
+      <g stroke="var(--accent)" stroke-width="2" fill="none" stroke-linejoin="round">
+        <path d="M50 160 L200 160 L200 226 L50 226 Z" fill="var(--panel)"/>
+        <path d="M50 160 L240 50 L390 50 L200 160"/>
+        <path d="M200 160 L390 50 L390 116 L200 226"/>
+      </g>
+      <path d="M50 226 L240 116 L390 116 M240 50 L240 116" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" fill="none" opacity="0.6"/>
+      <!-- dimensions -->
+      <g stroke="var(--fg)" stroke-width="1.2" fill="none">
+        <line x1="50" y1="246" x2="200" y2="246" marker-start="url(#dm)" marker-end="url(#dm)"/>
+        <line x1="50" y1="232" x2="50" y2="252"/><line x1="200" y1="232" x2="200" y2="252"/>
+        <line x1="30" y1="160" x2="30" y2="226" marker-start="url(#dm)" marker-end="url(#dm)"/>
+        <line x1="24" y1="160" x2="44" y2="160"/><line x1="24" y1="226" x2="44" y2="226"/>
+        <line x1="216" y1="244" x2="406" y2="134" marker-start="url(#dm)" marker-end="url(#dm)"/>
+        <line x1="204" y1="233" x2="220" y2="251"/><line x1="394" y1="123" x2="410" y2="141"/>
+      </g>
+      <g font-family="var(--sans)" font-size="17" font-style="italic" font-weight="700" fill="var(--fg)">
+        <text x="125" y="270" text-anchor="middle">a</text>
+        <text x="16" y="199" text-anchor="middle">b</text>
+        <text x="322" y="210" text-anchor="middle">L</text>
+      </g>
+      <g font-family="var(--sans)" font-size="13" font-weight="700" fill="var(--accent)">
+        <text x="125" y="198" text-anchor="middle">Puerto 1</text>
+        <text x="398" y="88">Puerto 2</text>
+      </g>
+      <g stroke="var(--muted)" stroke-width="1.4" marker-end="url(#ar)" fill="none">
+        <line x1="330" y1="280" x2="370" y2="280"/><line x1="330" y1="280" x2="330" y2="254"/><line x1="330" y1="280" x2="356" y2="265"/>
+      </g>
+      <g font-family="var(--sans)" font-size="12" fill="var(--muted)"><text x="376" y="284">x</text><text x="324" y="250">y</text><text x="360" y="262">z</text></g>
+    </svg>
+  </header>
+
+  <section class="chapter" id="campos">
+    <div class="lede">
+      <span class="eyebrow">01 · Explorador de campos</span>
+      <h2>Campos dentro de la guía</h2>
+      <p>Un modo se excita en el puerto 1 y viaja hacia el puerto 2. La vista 3D muestra el campo instantáneo \(\operatorname{Re}\{\mathbf{E}\,e^{j\omega t}\}\) dentro de la guía. Presioná <b>Reproducir</b> para ver cómo avanza la onda a lo largo de \(z\). Si hay reflexión en el puerto 2, la onda viajera se convierte en una onda estacionaria. Los planos de corte muestran en colores E, H o el flujo de potencia S sobre tres cortes móviles y sobre la pared superior.</p>
+    </div>
+    <div class="panel">
+      <div class="controls">
+        <label class="ctl"><span>Modo</span><select id="fxMode"></select></label>
+        <label class="ctl"><span>Frecuencia</span><span class="frq"><input type="range" id="fxFreq" list="fxFreqL" aria-label="Frecuencia (GHz)"><datalist id="fxFreqL"></datalist><output id="fxFreqO"></output></span></label>
+        <label class="ctl"><span>Reflexión en el puerto 2 |Γ|</span><span class="frq"><input type="range" id="fxGam" min="0" max="1" step="0.05" value="0"><output id="fxGamO">0</output></span></label>
+        <label class="ctl"><span>Fase de Γ</span><div class="seg" id="fxGph"><button type="button" aria-pressed="true" data-v="180">180° (cortocircuito)</button><button type="button" aria-pressed="false" data-v="0">0° (circuito abierto)</button></div></label>
+      </div>
+      <div class="controls">
+        <button class="btn primary" id="fxPlay" type="button">Reproducir</button>
+        <label class="ctl"><span>Fase ωt</span><input type="range" id="fxPhase" min="0" max="360" value="0"></label>
+        <span class="readout" id="fxPhaseRd">0°</span>
+        <span class="readout muted" id="fxInfo"></span>
+      </div>
+      <div class="stage3d" id="v3Stage">
+        <canvas id="v3Canvas" aria-label="Vista 3D de la guía de onda con el campo en su interior"></canvas>
+        <div class="v3labels" id="v3Labels"></div>
+        <div class="v3legend" id="v3Legend"></div>
+        <div class="v3cbar" id="v3Cbar" aria-label="Escala de colores de los planos de corte"></div>
+        <div class="v3views" role="group" aria-label="Cámara"><button type="button" data-view="iso">3D</button><button type="button" data-view="port">Puerto 1</button><button type="button" data-view="side">Lateral</button><button type="button" data-view="top">Superior</button></div>
+        <p class="v3hint">Arrastrá para rotar, usá la rueda o pellizcá para acercar y arrastrá con clic derecho o con Shift para desplazar. Con doble clic vuelve a la vista inicial.</p>
+      </div>
+      <div class="controls">
+        <label class="ctl"><span>La vista 3D muestra</span><div class="seg multi" id="v3Show"><button type="button" aria-pressed="true" data-v="E"><i class="sw" style="background:var(--fE)"></i>Flechas de E</button><button type="button" aria-pressed="false" data-v="H"><i class="sw" style="background:var(--fH)"></i>Flechas de H</button><button type="button" aria-pressed="false" data-v="S"><i class="sw" style="background:var(--fS)"></i>Flujo de potencia S</button><button type="button" aria-pressed="false" data-v="J"><i class="sw" style="background:var(--fJ)"></i>Corriente en las paredes</button></div></label>
+        <label class="ctl"><span>Flechas en</span><div class="seg" id="v3Region"><button type="button" aria-pressed="true" data-v="vol">Todo el volumen</button><button type="button" aria-pressed="false" data-v="plane">Los planos de corte</button></div></label>
+        <label class="ctl"><span>Tamaño de las flechas</span><input type="range" id="v3Size" min="0.4" max="2.5" step="0.1" value="1"></label>
+      </div>
+      <div class="slices" id="fxSlices"></div>
+      <p class="note" id="fxNote"></p>
+    </div>
+  </section>
+
+  <section class="chapter" id="modos">
+    <div class="lede">
+      <span class="eyebrow">02 · Modos</span>
+      <h2>Modos y frecuencias de corte</h2>
+      <p>Una guía hueca no puede transportar ondas TEM. Sus campos se organizan en modos \(\mathrm{TE}_{mn}\) (sin \(E_z\)) y \(\mathrm{TM}_{mn}\) (sin \(H_z\)), donde \(m\) y \(n\) cuentan las semiondas a lo largo de la pared ancha y de la angosta. Cada modo se propaga solo por encima de su frecuencia de corte. Por debajo, el campo se atenúa a lo largo de la guía en lugar de viajar.</p>
+      <div class="formula">\[ f_{c,mn} = \frac{c}{2}\sqrt{\left(\frac{m}{a}\right)^{2} + \left(\frac{n}{b}\right)^{2}} \qquad \mathrm{TE}:\ m, n \ge 0\ \text{(no ambos 0)} \qquad \mathrm{TM}:\ m, n \ge 1 \]</div>
+    </div>
+    <div class="panel">
+      <div class="controls">
+        <label class="ctl"><span>Frecuencia</span><span class="frq"><input type="range" id="atlasFreq" list="fxFreqL" aria-label="Frecuencia (GHz)"><output id="atlasFreqO"></output></span></label>
+        <label class="ctl"><span>Mostrar</span><div class="seg" id="atlasQty"><button type="button" aria-pressed="true" data-v="E">Campo E</button><button type="button" aria-pressed="false" data-v="H">Campo H</button></div></label>
+        <div class="cbar" id="atlasCbar"></div>
+      </div>
+      <div class="atlas" id="atlas"><span class="loading">Cargando los patrones de los modos...</span></div>
+      <p class="note" id="atlasNote"></p>
+    </div>
+    <div class="cols2">
+      <div class="panel"><h3>Corte en función del ancho a <span class="muted" style="font-weight:400" id="fcAt"></span></h3><div class="plot" id="fcA"></div></div>
+      <div class="panel"><h3>Corte en función del alto b <span class="muted" style="font-weight:400" id="fcBt"></span></h3><div class="plot" id="fcB"></div></div>
+    </div>
+    <p class="note">Las líneas muestran la frecuencia de corte analítica \(f_{c,mn}\). La franja sombreada es la banda monomodo, entre el \(\mathrm{TE}_{10}\) y el modo siguiente. Esa banda es más ancha cuando \(a \ge 2b\), y por eso las guías normalizadas usan \(a \approx 2{,}25\,b\).</p>
+  </section>
+
+  <section class="chapter" id="dispersion">
+    <div class="lede">
+      <span class="eyebrow">03 · Dispersión</span>
+      <h2>Dispersión, atenuación e impedancia</h2>
+      <p>Cada modo viaja como \(e^{-\gamma z}\), donde \(\gamma = \alpha + j\beta\) es su <b>constante de propagación</b>. La parte real \(\alpha\) es la <b>constante de atenuación</b>, en Np/m (1 Np = 8,686 dB). Por debajo del corte representa el decaimiento evanescente y, por encima, la pérdida en las paredes de cobre. La parte imaginaria \(\beta\) es la <b>constante de fase</b>, en rad/m, que determina la longitud de onda en la guía y las velocidades de fase y de grupo.</p>
+      <div class="formula">\[ \gamma = \alpha + j\beta = \sqrt{k_c^2 - k^2} \qquad \beta = \sqrt{k^2 - k_c^2}\ \text{sobre el corte} \qquad \alpha = \sqrt{k_c^2 - k^2}\ \text{debajo} \]</div>
+      <div class="formula">\[ \lambda_g = \frac{2\pi}{\beta} \qquad v_p = \frac{\omega}{\beta} \qquad v_g = \frac{d\omega}{d\beta} \qquad v_p\,v_g = c^2 \qquad Z_{\mathrm{TE}} = \frac{\eta\,k}{\beta} \qquad Z_{\mathrm{TM}} = \frac{\eta\,\beta}{k} \]</div>
+    </div>
+    <div class="panel">
+      <div class="controls">
+        <label class="ctl"><span>Magnitud</span><select id="dispMetric">
+          <option value="beta">Constante de fase β = Im γ (rad/m)</option>
+          <option value="atten">Constante de atenuación α = Re γ (dB/m, log)</option>
+          <option value="lg">Longitud de onda en la guía λg (mm)</option>
+          <option value="vp">Velocidad de fase vp / c</option>
+          <option value="vg">Velocidad de grupo vg / c</option>
+          <option value="zw">Impedancia de onda (Ω)</option>
+        </select></label>
+      </div>
+      <div class="plot" id="dispPlot" style="min-height:420px"></div>
+      <p class="note" id="dispNote"></p>
+    </div>
+  </section>
+
+  <section class="chapter" id="modelo">
+    <div class="lede">
+      <span class="eyebrow">04 · Modelo</span>
+      <h2>Ecuaciones y simulación</h2>
+      <p>Todos los campos, cortes y curvas del sitio se calculan con las expresiones analíticas de una guía rectangular llena de aire con paredes de cobre (\(\sigma = 5{,}8\times10^{7}\ \mathrm{S/m}\)), con la convención \(e^{j\omega t}\) y propagación hacia \(+z\). Las coordenadas son \(x \in [0, a]\) (pared ancha), \(y \in [0, b]\) (pared angosta) y \(z \in [0, L]\), con \(L = 100\ \mathrm{mm}\).</p>
+    </div>
+
+    <div class="panel eqs">
+      <h3>Números de onda y frecuencia de corte</h3>
+      <div class="formula">\[ k = \omega\sqrt{\mu_0\varepsilon_0} = \frac{2\pi f}{c} \qquad k_x = \frac{m\pi}{a} \qquad k_y = \frac{n\pi}{b} \qquad k_c^2 = k_x^2 + k_y^2 \]</div>
+      <div class="formula">\[ f_{c,mn} = \frac{c\,k_c}{2\pi} = \frac{c}{2}\sqrt{\left(\frac{m}{a}\right)^{2} + \left(\frac{n}{b}\right)^{2}} \]</div>
+
+      <h3>Constante de propagación con pérdidas</h3>
+      <div class="formula">\[ \gamma = \alpha + j\beta \qquad \gamma^2 = k_c^2 - k^2 + j\,2k\,Q_c \qquad \operatorname{Re}\gamma \ge 0 \]</div>
+      <p class="note">Sin pérdidas, \(\gamma = \sqrt{k_c^2 - k^2}\), que es real por debajo del corte (\(\gamma = \alpha\)) e imaginaria por encima (\(\gamma = j\beta\)). El término \(Q_c = \alpha_c\beta/k\) agrega la pérdida en el cobre. Lejos del corte, \(\alpha\) tiende a \(\alpha_c\) y, a diferencia de la fórmula de perturbación habitual, \(\gamma\) se mantiene finita y continua al cruzar el corte.</p>
+      <div class="formula">\[ R_s = \sqrt{\frac{\omega\mu_0}{2\sigma}} \qquad F = \frac{f_c}{f} \qquad \eta = \sqrt{\frac{\mu_0}{\varepsilon_0}} \approx 376{,}7\ \Omega \]</div>
+      <div class="formula">\[ \mathrm{TE}_{m0}:\ Q_c = \frac{R_s}{b\,\eta}\left(1 + \frac{2b}{a}F^2\right) \qquad \mathrm{TE}_{0n}:\ Q_c = \frac{R_s}{a\,\eta}\left(1 + \frac{2a}{b}F^2\right) \]</div>
+      <div class="formula">\[ \mathrm{TE}_{mn}:\ Q_c = \frac{2R_s}{b\,\eta}\left[\left(1 + \frac{b}{a}\right)F^2 + \left(1 - F^2\right)\frac{\frac{b}{a}\left(\frac{b}{a}m^2 + n^2\right)}{\frac{b^2}{a^2}m^2 + n^2}\right] \]</div>
+      <div class="formula">\[ \mathrm{TM}_{mn}:\ Q_c = \frac{2R_s}{b\,\eta}\,\frac{m^2b^3 + n^2a^3}{m^2b^2a + n^2a^3} \]</div>
+      <p class="note">Las expresiones de \(\alpha_c = Q_c/\sqrt{1 - F^2}\) para la atenuación por conductor son las de Balanis (<i>Advanced Engineering Electromagnetics</i>, cap. 8) y Pozar (<i>Microwave Engineering</i>, cap. 3).</p>
+
+      <h3>Campos de los modos \(\mathrm{TE}_{mn}\) (\(H_z \ne 0,\ E_z = 0\))</h3>
+      <div class="formula">\[ H_z = A\cos(k_x x)\cos(k_y y)\,e^{-\gamma z} \]</div>
+      <div class="formula">\[ E_x = \frac{j\omega\mu_0 k_y}{k_c^2}\,A\cos(k_x x)\,\sen(k_y y)\,e^{-\gamma z} \qquad E_y = -\frac{j\omega\mu_0 k_x}{k_c^2}\,A\,\sen(k_x x)\cos(k_y y)\,e^{-\gamma z} \]</div>
+      <div class="formula">\[ H_x = \frac{\gamma k_x}{k_c^2}\,A\,\sen(k_x x)\cos(k_y y)\,e^{-\gamma z} \qquad H_y = \frac{\gamma k_y}{k_c^2}\,A\cos(k_x x)\,\sen(k_y y)\,e^{-\gamma z} \]</div>
+      <div class="formula">\[ Z_{\mathrm{TE}} = \frac{E_x}{H_y} = -\frac{E_y}{H_x} = \frac{j\omega\mu_0}{\gamma} \]</div>
+
+      <h3>Campos de los modos \(\mathrm{TM}_{mn}\) (\(E_z \ne 0,\ H_z = 0\))</h3>
+      <div class="formula">\[ E_z = B\,\sen(k_x x)\,\sen(k_y y)\,e^{-\gamma z} \]</div>
+      <div class="formula">\[ E_x = -\frac{\gamma k_x}{k_c^2}\,B\cos(k_x x)\,\sen(k_y y)\,e^{-\gamma z} \qquad E_y = -\frac{\gamma k_y}{k_c^2}\,B\,\sen(k_x x)\cos(k_y y)\,e^{-\gamma z} \]</div>
+      <div class="formula">\[ H_x = \frac{j\omega\varepsilon_0 k_y}{k_c^2}\,B\,\sen(k_x x)\cos(k_y y)\,e^{-\gamma z} \qquad H_y = -\frac{j\omega\varepsilon_0 k_x}{k_c^2}\,B\cos(k_x x)\,\sen(k_y y)\,e^{-\gamma z} \]</div>
+      <div class="formula">\[ Z_{\mathrm{TM}} = \frac{E_x}{H_y} = -\frac{E_y}{H_x} = \frac{\gamma}{j\omega\varepsilon_0} \]</div>
+
+      <h3>Excitación y reflexión en el puerto 2</h3>
+      <div class="formula">\[ \mathrm{TE}:\ \max\left|\mathbf{E}_t(z = 0)\right| = E_0 \qquad \mathrm{TM}:\ \max\left|\mathbf{H}_t(z = 0)\right| = \frac{E_0}{\eta} \qquad E_0 = 3\ \mathrm{kV/m} \]</div>
+      <div class="formula">\[ \mathbf{E}_t(z) = \mathbf{E}_t^{+}\left[e^{-\gamma z} + \Gamma\,e^{-\gamma L}\,e^{-\gamma(L - z)}\right] \qquad \mathbf{H}_t(z) = \mathbf{H}_t^{+}\left[e^{-\gamma z} - \Gamma\,e^{-\gamma L}\,e^{-\gamma(L - z)}\right] \]</div>
+      <div class="formula">\[ \mathrm{ROE} = \frac{1 + |\Gamma|}{1 - |\Gamma|} \]</div>
+      <p class="note">El puerto 1 impone la misma amplitud de campo para cualquier tamaño de guía. Por eso, la potencia que entra depende de \(\beta\) y tiende a cero de forma continua al acercarse al corte. \(\Gamma\) es el coeficiente de reflexión en \(z = L\). La onda reflejada invierte el signo de las componentes longitudinales de \(\mathbf{E}\) y de las componentes transversales de \(\mathbf{H}\).</p>
+
+      <h3>Magnitudes que dibuja la vista 3D</h3>
+      <div class="formula">\[ \mathbf{E}(t) = \operatorname{Re}\left\{\mathbf{E}\,e^{j\omega t}\right\} \qquad \mathbf{S} = \tfrac{1}{2}\operatorname{Re}\left\{\mathbf{E}\times\mathbf{H}^{*}\right\} \qquad P(z) = \int_0^b\!\!\int_0^a \mathbf{S}\cdot\hat{\mathbf{z}}\;dx\,dy \qquad \mathbf{J}_s = \hat{\mathbf{n}}\times\mathbf{H} \]</div>
+      <p class="note">\(\mathbf{S}\) es el vector de Poynting promediado en el tiempo y \(\hat{\mathbf{n}}\) es la normal a la pared, orientada hacia el interior de la guía. En una guía sin pérdidas, \(P(z)\) es igual en cualquier corte. Con pérdidas, decae como \(e^{-2\alpha z}\).</p>
+    </div>
+
+  </section>
+
+  <section class="chapter" id="simulacion">
+    <div class="lede">
+      <span class="eyebrow">05 · Simulación</span>
+      <h2>Reproducilo en Ansys HFSS</h2>
+      <p>El sitio no publica resultados de simulación: todo lo que muestra sale de las fórmulas. Para verificarlas con un simulador de onda completa, podés descargar un script de Python que arma la misma guía en Ansys HFSS mediante PyAEDT y deja preparada la simulación. Funciona con la versión estudiantil gratuita de Ansys Electronics Desktop.</p>
+      <div class="ctarow"><a class="btn primary cta" href="descargas/guia_onda_hfss.py" download>Descargar guia_onda_hfss.py</a><span class="muted">Python · PyAEDT · Ansys Electronics Desktop 2024 R2 o posterior</span></div>
+    </div>
+    <div class="cols2">
+      <div class="panel">
+        <h3>Cómo usarlo</h3>
+        <ol class="steps">
+          <li><b>Instalá Ansys Electronics Desktop</b>La <a href="https://www.ansys.com/academic/students" target="_blank" rel="noopener">versión estudiantil</a> es gratuita y alcanza para esta guía.</li>
+          <li><b>Instalá PyAEDT</b>Con Python 3.10 o posterior:<div class="cmd">pip install pyaedt</div></li>
+          <li><b>Corré el script</b>Con la sección transversal elegida en la barra superior, construye el modelo, lo resuelve y arma los gráficos:<div class="cmd" id="simCmd">python guia_onda_hfss.py --a 20 --b 10 --resolver</div>Sin <code>--resolver</code> solo construye el modelo y lo deja abierto en HFSS, para revisarlo y lanzar <i>Analyze All</i> a mano.</li>
+          <li><b>Compará con el sitio</b>Cada resultado del proyecto tiene su par en una sección del sitio (tabla de la derecha).</li>
+        </ol>
+      </div>
+      <div class="panel">
+        <h3>Qué arma el script</h3>
+        <ul class="plain">
+          <li>Las variables <code>a</code>, <code>b</code> y <code>L</code> del diseño (por defecto 20 × 10 × 100 mm, como en el sitio).</li>
+          <li>Una caja de aire con paredes de cobre de conductividad finita.</li>
+          <li>Un puerto de onda en cada extremo, con todos los modos que se propagan hasta la frecuencia máxima y alineación analítica, para que los pares degenerados \(\mathrm{TE}_{mn}\)/\(\mathrm{TM}_{mn}\) salgan como modos TE y TM puros.</li>
+          <li>Malla adaptativa a la frecuencia máxima, un barrido interpolante de 2,5 a 26 GHz (el rango de Dispersión) y un barrido discreto con campos guardados a 10 GHz.</li>
+        </ul>
+        <h3 style="margin-top:18px">Qué comparar</h3>
+        <div class="tablebox"><table class="data">
+          <tr><th>En HFSS</th><th>En el sitio</th></tr>
+          <tr><td>Informe "beta = Im(gamma)"</td><td>Dispersión, constante de fase \(\beta\)</td></tr>
+          <tr><td>Informe "alfa = Re(gamma)"</td><td>Dispersión, constante de atenuación \(\alpha\)</td></tr>
+          <tr><td>Informe "S21 del modo 1"</td><td>Pérdida del \(\mathrm{TE}_{10}\) en la guía, \(\alpha L\)</td></tr>
+          <tr><td>Field Overlays <code>E_XY</code>, <code>E_XZ</code>, <code>E_YZ</code></td><td>Explorador de campos, cortes xy, xz e yz de \(|\mathbf{E}(t)|\)</td></tr>
+          <tr><td>Port Field Display de P1</td><td>Modos, patrón de cada modo</td></tr>
+        </table></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Opciones del script</h3>
+      <div class="tablebox"><table class="data">
+        <tr><th>Opción</th><th>Por defecto</th><th>Qué hace</th></tr>
+        <tr><td><code>--a</code>, <code>--b</code>, <code>--L</code></td><td>20, 10 y 100</td><td>Dimensiones de la guía en mm (a es la pared ancha).</td></tr>
+        <tr><td><code>--fmin</code>, <code>--fmax</code></td><td>2,5 y 26</td><td>Barrido de frecuencia en GHz. La malla adaptativa se calcula a fmax.</td></tr>
+        <tr><td><code>--campos</code></td><td>10</td><td>Frecuencias en GHz con campos guardados. Acepta varias (<code>--campos 10 20 30</code>).</td></tr>
+        <tr><td><code>--excitar</code></td><td>1</td><td>Modo del puerto 1 que se excita para los campos (1 = el de menor corte, el \(\mathrm{TE}_{10}\)).</td></tr>
+        <tr><td><code>--modos</code></td><td>automático</td><td>Modos por puerto. Por defecto, todos los que se propagan hasta fmax.</td></tr>
+        <tr><td><code>--resolver</code></td><td>no</td><td>Resuelve y crea los informes y los cortes de campo.</td></tr>
+        <tr><td><code>--licencia</code></td><td>estudiantil</td><td><code>completa</code> si se usa la versión comercial de AEDT.</td></tr>
+        <tr><td><code>--version</code></td><td>la más nueva</td><td>Versión de AEDT, por ejemplo <code>2025.1</code>.</td></tr>
+        <tr><td><code>--sin-interfaz</code></td><td>no</td><td>Corre AEDT sin ventana y lo cierra al terminar.</td></tr>
+      </table></div>
+      <p class="note">Si la versión estudiantil no alcanza para la malla, bajá <code>--fmax</code> (habrá menos modos por puerto y una malla más gruesa) o achicá <code>--L</code>. Los resultados de HFSS no van a coincidir exactamente con las fórmulas, porque la malla es finita y la pérdida en el cobre se calcula de otra forma. Lejos del corte, las diferencias deberían ser de unos pocos por ciento.</p>
+    </div>
+  </section>
+</main>
+<footer class="runner">
+  <div class="wrap">
+    <span class="utn-logo" role="img" aria-label="UTN.BA, Universidad Tecnológica Nacional, Facultad Regional Buenos Aires"></span><span class="logo-text">UTN.BA</span>
+    <span>Guía de onda rectangular · Medios de Enlace · UTN.BA<br>Autor: <b>Lucas Liaño</b></span>
+  </div>
+</footer>
+
+<script src="lang/en.js"></script>
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+
+/* ---------- language: Spanish by default, English on request (remembered per browser) ---------- */
+let LANG = "es";
+try { if (localStorage.getItem("lang") === "en") LANG = "en"; } catch (e) {}
+if (/[?&]lang=en\b/.test(location.search)) LANG = "en";
+const tr = (es, en) => LANG === "en" ? en : es;
+const C0 = 299792458, MU0 = 4e-7 * Math.PI, ETA0 = 376.730313;
+const NOMINAL_ORDER = ["TE10", "TE20", "TE01", "TE11", "TM11", "TE30", "TE21", "TM21"];
+const SIGMA_CU = 5.8e7, L_MM = 100;   // copper (S/m); guide length (mm), the same as in the HFSS script
+
+function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function modeColor(name) { const i = NOMINAL_ORDER.indexOf(name); return i >= 0 ? css(`--s${i + 1}`) : css("--other"); }
+// typeset the TeX in text written after MathJax's first pass (no-op until MathJax has loaded; its first pass covers it)
+function texify(el) {
+  const M = window.MathJax;
+  if (M && M.typesetPromise) M.startup.promise.then(() => { M.typesetClear([el]); return M.typesetPromise([el]); }).catch(() => {});
+}
+function sub(name) { return name.slice(0, 2) + "<sub>" + name.slice(2) + "</sub>"; }
+function fmt(v, d = 2) { return Number(v).toFixed(d); }
+function setPressed(group, v) { group.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === v))); }
+function segValue(group) { return group.querySelector('button[aria-pressed="true"]').dataset.v; }
+function onSeg(group, fn) { group.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; setPressed(group, b.dataset.v); fn(b.dataset.v); }); }
+
+/* ---------- analytic waveguide formulas ---------- */
+function fcOf(m, n, a, b) { return C0 / 2 * Math.hypot(m / a, n / b); }               // a, b in m -> Hz
+function alphaCond(t, m, n, a, b, f) {                                                 // Np/m, copper walls
+  const fc = fcOf(m, n, a, b); if (f <= fc) return NaN;
+  return condLoss(t, m, n, a, b, f) / Math.sqrt(1 - (fc / f) ** 2);
+}
+// αc·β/k: the copper-loss term without its 1/√(1 − (fc/f)²) factor, finite at and below cutoff
+function condLoss(t, m, n, a, b, f) {
+  const F2 = (fcOf(m, n, a, b) / f) ** 2, Rs = Math.sqrt(Math.PI * f * MU0 / SIGMA_CU);
+  if (t === "TM") return 2 * Rs / (b * ETA0) * (m * m * b ** 3 + n * n * a ** 3) / (m * m * b * b * a + n * n * a ** 3);
+  if (n === 0) return Rs / (b * ETA0) * (1 + 2 * b / a * F2);
+  if (m === 0) return Rs / (a * ETA0) * (1 + 2 * a / b * F2);
+  const ba = b / a;
+  return Math.max(0, 2 * Rs / (b * ETA0) * ((1 + ba) * F2 + (1 - F2) * (ba * (ba * m * m + n * n)) / (ba * ba * m * m + n * n)));
+}
+
+/* ---------- colour maps ---------- */
+function hex2rgb(h) { h = h.replace("#", ""); if (h.length === 3) h = h.split("").map(c => c + c).join(""); const n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+function buildLut(stops) {
+  const lut = new Uint8ClampedArray(256 * 3), cs = stops.map(hex2rgb);
+  for (let i = 0; i < 256; i++) {
+    const t = i / 255 * (cs.length - 1), j = Math.min(cs.length - 2, Math.floor(t)), f = t - j;
+    for (let c = 0; c < 3; c++) lut[i * 3 + c] = cs[j][c] * (1 - f) + cs[j + 1][c] * f;
+  }
+  return lut;
+}
+let LUT_DIV, LUT_SEQ;
+function buildLuts() {
+  LUT_DIV = buildLut(["--div-neg", "--div-neg2", "--div-neg3", "--div-mid", "--div-pos3", "--div-pos2", "--div-pos"].map(css));
+  LUT_SEQ = buildLut([css("--div-mid"), css("--seq-1"), css("--seq-2"), css("--seq-3")]);
+}
+function drawCbar(el, signed, maxv, unit) {
+  el.innerHTML = "";
+  const c = document.createElement("canvas"); c.width = 256; c.height = 1;
+  const g = c.getContext("2d"), img = g.createImageData(256, 1), lut = signed ? LUT_DIV : LUT_SEQ;
+  for (let i = 0; i < 256; i++) { img.data.set([lut[i * 3], lut[i * 3 + 1], lut[i * 3 + 2], 255], i * 4); }
+  g.putImageData(img, 0, 0);
+  const lo = document.createElement("span"), hi = document.createElement("span");
+  lo.textContent = signed ? `−${sig(maxv)}` : "0"; hi.textContent = `${sig(maxv)} ${unit}`;
+  el.append(lo, c, hi);
+}
+function sig(v) { if (!isFinite(v) || v === 0) return "0"; const e = Math.floor(Math.log10(Math.abs(v))); return e >= 4 || e < -2 ? v.toExponential(1) : v.toPrecision(3); }
+
+/* ---------- field rendering on a canvas ----------
+   grid: {cols, rows, val(i,j) scalar, vec(i,j) [u,v] or null, physW, physH}; row 0 drawn at the bottom.
+   opt.frame = [w, h] (same units as physW/physH): the canvas keeps the frame's shape and the field is drawn
+   to that scale, centred, so every size shares one scale and the canvas height never changes. */
+function renderField(canvas, grid, opt) {
+  const dpr = window.devicePixelRatio || 1, cssW = canvas.clientWidth || canvas.parentElement.clientWidth;
+  const fr = opt.frame || [grid.physW, grid.physH];
+  const cssH = opt.height || Math.max(60, cssW * fr[1] / fr[0]);
+  canvas.style.height = cssH + "px";
+  canvas.width = Math.round(cssW * dpr); canvas.height = Math.round(cssH * dpr);
+  const g = canvas.getContext("2d");
+  // the field's own rectangle inside the canvas (device px)
+  const W = Math.round(canvas.width * Math.min(1, grid.physW / fr[0])), H = Math.round(canvas.height * Math.min(1, grid.physH / fr[1]));
+  const X0 = Math.round((canvas.width - W) / 2), Y0 = Math.round((canvas.height - H) / 2);
+  const off = document.createElement("canvas"); off.width = grid.cols; off.height = grid.rows;
+  const og = off.getContext("2d"), img = og.createImageData(grid.cols, grid.rows), lut = opt.signed ? LUT_DIV : LUT_SEQ;
+  for (let j = 0; j < grid.rows; j++) for (let i = 0; i < grid.cols; i++) {
+    let t = grid.val(i, j) / (opt.max || 1);
+    t = opt.signed ? (t + 1) / 2 : t;
+    const li = Math.max(0, Math.min(255, Math.round(t * 255))), p = ((grid.rows - 1 - j) * grid.cols + i) * 4;
+    img.data[p] = lut[li * 3]; img.data[p + 1] = lut[li * 3 + 1]; img.data[p + 2] = lut[li * 3 + 2]; img.data[p + 3] = 255;
+  }
+  og.putImageData(img, 0, 0);
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high";
+  g.drawImage(off, X0, Y0, W, H);
+  if (opt.arrows && grid.vec) {
+    // arrow density follows the drawn size, so a small guide gets fewer arrows rather than tiny ones
+    const target = Math.max(5, Math.round((opt.arrowCols || 26) * W / canvas.width));
+    const si = Math.max(1, Math.round(grid.cols / target)), sj = Math.max(1, Math.round(grid.rows / Math.max(4, target * H / W)));
+    const cw = W / grid.cols, ch = H / grid.rows, Lmax = Math.min(si * cw, sj * ch) * 0.95;
+    // ink arrows with a thin paper halo so they read on both the pale and the deep end of the map
+    const shafts = new Path2D(), heads = new Path2D();
+    for (let j = Math.floor(sj / 2); j < grid.rows; j += sj) for (let i = Math.floor(si / 2); i < grid.cols; i += si) {
+      const [u, v] = grid.vec(i, j), m = Math.hypot(u, v) / (opt.vmax || 1);
+      if (m < 0.06) continue;
+      const L = Lmax * Math.min(1, m), ang = Math.atan2(-v, u);
+      const x = X0 + (i + 0.5) * cw, y = Y0 + (grid.rows - j - 0.5) * ch, dx = Math.cos(ang) * L / 2, dy = Math.sin(ang) * L / 2;
+      shafts.moveTo(x - dx, y - dy); shafts.lineTo(x + dx, y + dy);
+      const hs = Math.max(3 * dpr, L * 0.3);
+      heads.moveTo(x + dx, y + dy);
+      heads.lineTo(x + dx - hs * Math.cos(ang - 0.45), y + dy - hs * Math.sin(ang - 0.45));
+      heads.lineTo(x + dx - hs * Math.cos(ang + 0.45), y + dy - hs * Math.sin(ang + 0.45)); heads.closePath();
+    }
+    g.lineJoin = "round";
+    g.strokeStyle = css("--bg"); g.lineWidth = 3.4 * dpr; g.stroke(shafts); g.stroke(heads);
+    g.strokeStyle = g.fillStyle = css("--fg"); g.lineWidth = 1.3 * dpr; g.stroke(shafts); g.fill(heads);
+  }
+  g.strokeStyle = css("--fg"); g.lineWidth = dpr; g.strokeRect(X0 + dpr / 2, Y0 + dpr / 2, W - dpr, H - dpr);
+  // the largest cross-section of the grid, as a faint reference outline
+  if (opt.frame) { g.setLineDash([4 * dpr, 3 * dpr]); g.strokeStyle = css("--grid-strong"); g.strokeRect(dpr / 2, dpr / 2, canvas.width - dpr, canvas.height - dpr); g.setLineDash([]); }
+}
+
+/* complex vector at flat index p from int16 data: returns [rx, ix, ry, iy, rz, iz] scaled */
+function cvec(arr, p, s) { const o = p * 6; return [arr[o] * s, arr[o + 1] * s, arr[o + 2] * s, arr[o + 3] * s, arr[o + 4] * s, arr[o + 5] * s]; }
+function inst(c, ph) { const co = Math.cos(ph), si = Math.sin(ph); return [c[0] * co - c[1] * si, c[2] * co - c[3] * si, c[4] * co - c[5] * si]; }
+function amp(c) { return Math.sqrt(c[0] * c[0] + c[1] * c[1] + c[2] * c[2] + c[3] * c[3] + c[4] * c[4] + c[5] * c[5]); }
+function strongest(arr, n) {     // index of the component (0 x,1 y,2 z) with most energy
+  const e = [0, 0, 0];
+  for (let p = 0; p < n; p++) for (let c = 0; c < 3; c++) e[c] += arr[p * 6 + 2 * c] ** 2 + arr[p * 6 + 2 * c + 1] ** 2;
+  return e.indexOf(Math.max(...e));
+}
+
+/* ---------- Plotly helpers ---------- */
+const FONT = "Arial, Arimo, Helvetica, sans-serif";
+function baseLayout(extra) {
+  const fg = css("--fg"), mu = css("--muted"), ln = css("--line");
+  const ax = { gridcolor: ln, zerolinecolor: ln, linecolor: ln, tickfont: { color: mu, family: FONT, size: 11 }, title: { font: { color: mu, size: 12 } } };
+  return Object.assign({
+    paper_bgcolor: css("--panel"), plot_bgcolor: css("--panel"), font: { color: fg, family: FONT, size: 12 },
+    margin: { l: 58, r: 70, t: 12, b: 48 }, hovermode: "closest",
+    hoverlabel: { bgcolor: css("--raised"), bordercolor: fg, font: { color: fg, family: FONT, size: 12 } },
+    legend: { orientation: "h", y: -0.2, font: { size: 11, color: mu } },
+    xaxis: { ...ax }, yaxis: { ...ax },
+  }, extra || {});
+}
+const PCFG = { displaylogo: false, responsive: true, modeBarButtonsToRemove: ["lasso2d", "select2d", "autoScale2d"] };
+function deepAxis(layout, key, more) { layout[key] = Object.assign({}, layout[key], more); return layout; }
+
+/* =============== Chapter 1: mode atlas + cutoff charts =============== */
+const atlas = { f: 10, q: "E" };
+
+// one card per mode, always the same eight in the same place: TEm0 and TE01 on the first row, the TE/TM pairs on the second
+const ATLAS_MODES = ["TE10", "TE20", "TE30", "TE01", "TE11", "TM11", "TE21", "TM21"];
+// the fixed mode list (Modos cards and the explorer's selector), with this guide's cutoffs (GHz)
+function fixedModes(a, b) {
+  return ATLAS_MODES.map(name => { const m = +name[2], n = +name[3]; return { name, type: name.slice(0, 2), m, n, fc: fcOf(m, n, a / 1000, b / 1000) / 1e9 }; });
+}
+function renderAtlas() {
+  const f = atlas.f, cards = [];
+  const nx = 32, ny = 16, xs = cellCentres(G.a, nx), ys = cellCentres(G.b, ny);
+  for (const m of fixedModes(G.a, G.b)) {
+    const r = anaField(m, G.a, G.b, f * 1e9, xs, ys, [1]);
+    cards.push({ name: m.name, fc: m.fc, arr: atlas.q === "E" ? r.E : r.H, off: 0, s: 1, al: r.alpha, be: r.beta, nx, ny });
+  }
+  const box = $("#atlas"); box.innerHTML = "";
+  for (const c of cards) {
+    const nxy = c.nx * c.ny, at = p => cvec(c.arr, p + c.off, c.s);
+    let mx = 0; for (let p = 0; p < nxy; p++) mx = Math.max(mx, amp(at(p)));
+    // choose the phase with the strongest transverse field so arrows are visible
+    let best = 0, bestE = -1;
+    for (const ph of [0, Math.PI / 4, Math.PI / 2, 3 * Math.PI / 4]) { let e = 0; for (let p = 0; p < nxy; p++) { const w = inst(at(p), ph); e += w[0] ** 2 + w[1] ** 2; } if (e > bestE) { bestE = e; best = ph; } }
+    const grid = { cols: c.nx, rows: c.ny, physW: G.a, physH: G.b,
+      val: (i, j) => amp(at(j * c.nx + i)),
+      vec: (i, j) => { const w = inst(at(j * c.nx + i), best); return [w[0], w[1]]; } };
+    const prop = f > c.fc;
+    const card = document.createElement("div"); card.className = "mcard";
+    card.innerHTML = `<header><span class="name"><span class="swatch" style="background:${modeColor(c.name)}"></span>${sub(c.name)}</span>
+      <span class="pill ${prop ? "prop" : "evan"}">${prop ? tr("se propaga", "propagates") : tr("evanescente", "evanescent")}</span></header>
+      <canvas></canvas><span class="meta">fc ${fmt(c.fc, 2)} GHz · ${prop ? "β " + fmt(c.be, 1) + " rad/m · λg " + fmt(2 * Math.PI / c.be * 1000, 1) + " mm" : "α " + fmt(c.al * 8.686 / 100, 1) + " dB/cm"}</span>`;
+    box.append(card);
+    renderField(card.querySelector("canvas"), grid, { signed: false, max: mx, arrows: true, vmax: mx, arrowCols: 12, frame: [GRID_A[GRID_A.length - 1], GRID_B[GRID_B.length - 1]] });
+  }
+  drawCbar($("#atlasCbar"), false, 1, tr("(normalizado por modo)", "(normalized per mode)"));
+  // why some cards change with frequency: the colour is the whole |E| or |H|, whose longitudinal share depends on γ
+  const why = atlas.q === "E"
+    ? tr(String.raw`Con "Campo E", los modos TE no cambian con la frecuencia porque su campo E es todo transversal. Los TM sí cambian: \(E_z\) no depende de \(f\), mientras que el campo transversal es proporcional a \(\gamma\), así que \(|\mathbf{E}_t|/|E_z| \approx |\gamma|/k_c\). Cerca del corte domina \(E_z\) y, muy por encima, el campo transversal.`,
+         String.raw`With "E field", the TE modes do not change with frequency because their E field is entirely transverse. The TM modes do change: \(E_z\) does not depend on \(f\), while the transverse field is proportional to \(\gamma\), so \(|\mathbf{E}_t|/|E_z| \approx |\gamma|/k_c\). Near cutoff \(E_z\) dominates, and far above it the transverse field does.`)
+    : tr(String.raw`Con "Campo H", los modos TM no cambian con la frecuencia porque su campo H es todo transversal. Los TE sí cambian: \(H_z\) no depende de \(f\), mientras que el campo transversal es proporcional a \(\gamma\), así que \(|\mathbf{H}_t|/|H_z| \approx |\gamma|/k_c\). En el \(\mathrm{TE}_{10}\), cerca del corte domina \(H_z \propto \cos(\pi x/a)\) y el color se concentra junto a las paredes laterales. Muy por encima del corte domina \(H_x \propto \sen(\pi x/a)\) y el color se concentra en el centro. Cerca del corte, la onda rebota casi de pared a pared. Lejos del corte, se parece cada vez más a una onda plana que viaja en \(z\).`,
+         String.raw`With "H field", the TM modes do not change with frequency because their H field is entirely transverse. The TE modes do change: \(H_z\) does not depend on \(f\), while the transverse field is proportional to \(\gamma\), so \(|\mathbf{H}_t|/|H_z| \approx |\gamma|/k_c\). In \(\mathrm{TE}_{10}\), near cutoff \(H_z \propto \cos(\pi x/a)\) dominates and the colour gathers next to the side walls. Far above cutoff \(H_x \propto \sin(\pi x/a)\) dominates and the colour gathers in the centre. Near cutoff, the wave bounces almost from wall to wall. Far from cutoff, it looks more and more like a plane wave travelling along \(z\).`);
+  const big = `${mm(GRID_A[GRID_A.length - 1])} × ${mm(GRID_B[GRID_B.length - 1])}`;
+  $("#atlasNote").innerHTML = tr(
+    `Sección transversal de la guía de ${mm(G.a)} × ${mm(G.b)}. Los ocho modos ocupan siempre el mismo lugar, y el indicador verde o rojo dice si a esta frecuencia se propagan o son evanescentes. Color: amplitud del campo completo, incluida su componente en \\(z\\), normalizada en cada modo. Flechas: solo el campo transversal, en un instante. ${why} Todas las secciones se dibujan a la misma escala. El marco punteado corresponde a la guía más grande (${big}).`,
+    `Cross-section of the ${mm(G.a)} × ${mm(G.b)} guide. The eight modes always keep the same place, and the green or red indicator tells whether they propagate or are evanescent at this frequency. Colour: amplitude of the complete field, including its \\(z\\) component, normalised for each mode. Arrows: the transverse field only, at one instant. ${why} Every cross-section is drawn to the same scale. The dashed frame is the largest guide (${big}).`);
+  texify($("#atlasNote"));
+}
+function renderCutoffCharts() {
+  const charts = [["#fcA", "a", 8, 40], ["#fcB", "b", 3, 20]];
+  $("#fcAt").textContent = `(b = ${mm(G.b)})`; $("#fcBt").textContent = `(a = ${mm(G.a)})`;
+  for (const [el, axis, lo, hi] of charts) {
+    const xs = []; for (let x = lo; x <= hi + 1e-9; x += (hi - lo) / 240) xs.push(x);
+    const traces = [];
+    const dims = x => axis === "a" ? [x, G.b] : [G.a, x];
+    const fcFun = (t, x) => { const [a, b] = dims(x); return fcOf(+t[2], +t[3], a / 1000, b / 1000) / 1e9; };
+    // single-mode band: TE10 .. min of all other modes (analytic, include more modes than the 8 named)
+    const others = []; for (let m = 0; m < 6; m++) for (let n = 0; n < 6; n++) if ((m || n) && !(m === 1 && n === 0)) others.push([m, n]);
+    const lo1 = xs.map(x => fcFun("TE10", x));
+    const hi1 = xs.map(x => { const [a, b] = dims(x); return Math.min(...others.map(([m, n]) => fcOf(m, n, a / 1000, b / 1000) / 1e9)); });
+    traces.push({ x: xs, y: lo1, mode: "lines", line: { width: 0 }, hoverinfo: "skip", showlegend: false });
+    traces.push({ x: xs, y: hi1, mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: css("--band"), name: tr("banda monomodo", "single-mode band"), hoverinfo: "skip" });
+    for (const name of NOMINAL_ORDER) {
+      if (name.startsWith("TM") && NOMINAL_ORDER.includes("TE" + name.slice(2))) continue;   // degenerate: drawn once
+      const ys = xs.map(x => fcFun(name, x));
+      const deg = name !== "TE10" && name !== "TE20" && name !== "TE01" && name !== "TE30" ? `${name}/TM${name.slice(2)}` : name;
+      traces.push({ x: xs, y: ys, mode: "lines", line: { color: modeColor(name), width: 2 }, name: deg, hovertemplate: `${deg}<br>${axis} = %{x:.2f} mm<br>fc = %{y:.2f} GHz<extra></extra>` });
+    }
+    const curX = axis === "a" ? G.a : G.b;
+    // the legend wraps onto several rows in these half-width charts: hang it below the axis title, in its own margin
+    const layout = baseLayout({ height: 460, margin: { l: 58, r: 20, t: 22, b: 150 },
+      legend: { orientation: "h", x: 0, xanchor: "left", y: -0.24, yanchor: "top", font: { size: 11, color: css("--muted") } },
+      shapes: [{ type: "line", x0: curX, x1: curX, y0: 0, y1: 1, yref: "paper", line: { color: css("--accent"), dash: "dot", width: 1.5 } }],
+      annotations: [{ x: curX, y: 1, yref: "paper", text: `${axis} = ${mm(curX)}`, showarrow: false, yanchor: "bottom", font: { size: 11, color: css("--accent") } }] });
+    deepAxis(layout, "xaxis", { title: { text: `${axis} (mm)`, font: { color: css("--muted"), size: 12 } }, range: [lo, hi] });
+    deepAxis(layout, "yaxis", { title: { text: tr("frecuencia de corte (GHz)", "cutoff frequency (GHz)"), font: { color: css("--muted"), size: 12 } }, range: [0, FX_F.hi] });
+    Plotly.react($(el), traces, layout, PCFG);
+  }
+}
+
+/* =============== Chapter 2: dispersion =============== */
+function analyticCurve(metric, mode, v, f) {
+  const a = v.a_mm / 1000, b = v.b_mm / 1000, fc = fcOf(mode.m, mode.n, a, b), k = 2 * Math.PI * f / C0, kc = 2 * Math.PI * fc / C0;
+  const prop = f > fc, beta = prop ? Math.sqrt(k * k - kc * kc) : NaN;
+  switch (metric) {
+    case "beta": return beta;
+    case "atten": return anaGamma(mode, v.a_mm, v.b_mm, f)[0] * 8.686;
+    case "lg": return 2 * Math.PI / beta * 1000;
+    case "vp": return k / beta;
+    case "vg": return beta / k;
+    case "zw": return mode.type === "TE" ? ETA0 * k / beta : ETA0 * beta / k;
+    default: return NaN;
+  }
+}
+const F_ANA = Array.from({ length: 441 }, (_, i) => 4 + i * 0.05);   // GHz, 4–26: past that the higher modes crowd the curves
+function renderDispersion() {
+  const metric = $("#dispMetric").value, geo = { a_mm: G.a, b_mm: G.b };
+  const f = F_ANA, modes = analyticModes(G.a, G.b), traces = [], ann = [];
+  const anaY = m => f.map(x => { const val = analyticCurve(metric, m, geo, x * 1e9); return isFinite(val) ? (metric === "atten" ? Math.max(val, 1e-4) : val) : null; });
+  for (const m of modes) {
+    const col = modeColor(m.name);
+    const y = anaY(m);
+    traces.push({ x: f, y, mode: "lines", name: m.name, line: { color: col, width: 2 }, hovertemplate: `${m.name}<br>%{x:.2f} GHz<br>%{y:.4g}<extra></extra>` });
+    // direct label at the last finite point; a degenerate TE/TM pair shares one label
+    const twin = m.type === "TM" && modes.some(q => q.type === "TE" && q.m === m.m && q.n === m.n);
+    const text = !twin && m.type === "TE" && m.m && m.n && modes.some(q => q.type === "TM" && q.m === m.m && q.n === m.n) ? `${m.name}/TM${m.m}${m.n}` : m.name;
+    if (!twin) for (let i = y.length - 1; i >= 0; i--) if (y[i] != null && isFinite(y[i])) {
+      // modes with the same cutoff (e.g. TE20 and TE01 when a = 2b) share their curve, so they share one label too
+      const yy = metric === "atten" ? Math.log10(y[i]) : y[i], same = ann.find(q => q.x === f[i] && Math.abs(q.y - yy) <= 1e-6 * Math.max(1, Math.abs(yy)));
+      if (same) same.text += `/${text}`;
+      else ann.push({ x: f[i], y: yy, text, showarrow: false, xanchor: "left", xshift: 4, font: { size: 11, color: css("--fg") } });
+      break;
+    }
+  }
+  if (metric === "beta") traces.push({ x: f, y: f.map(x => 2 * Math.PI * x * 1e9 / C0), mode: "lines", name: tr("k en el espacio libre", "free-space k"), line: { color: css("--faint"), width: 1.2, dash: "dot" }, hovertemplate: "k = ω/c<br>%{x:.2f} GHz<br>%{y:.1f} rad/m<extra></extra>" });
+  if (metric === "vp" || metric === "vg") traces.push({ x: [f[0], f[f.length - 1]], y: [1, 1], mode: "lines", name: "c", line: { color: css("--faint"), width: 1, dash: "dot" }, hoverinfo: "skip" });
+  if (metric === "zw") traces.push({ x: [f[0], f[f.length - 1]], y: [ETA0, ETA0], mode: "lines", name: "η₀ = 377 Ω", line: { color: css("--faint"), width: 1, dash: "dot" }, hoverinfo: "skip" });
+  const titles = { beta: "β = Im γ (rad/m)", atten: "α = Re γ (dB/m)", lg: "λg (mm)", vp: "vp / c", vg: "vg / c", zw: tr("impedancia de onda (Ω)", "wave impedance (Ω)"), zpi: "Re Zpi (Ω)" };
+  const ranges = { lg: [0, 200], vp: [0, 5], vg: [0, 1.05], zw: [0, 2000], zpi: [0, 2000] };
+  const layout = baseLayout({ annotations: ann });
+  deepAxis(layout, "xaxis", { title: { text: tr("frecuencia (GHz)", "frequency (GHz)"), font: { color: css("--muted"), size: 12 } }, range: [f[0], f[f.length - 1] + 1.2] });
+  deepAxis(layout, "yaxis", { title: { text: titles[metric], font: { color: css("--muted"), size: 12 } }, type: metric === "atten" ? "log" : "linear", ...(ranges[metric] ? { range: ranges[metric] } : {}), ...(metric === "atten" ? { range: [-2, 4] } : {}) });
+  Plotly.react($("#dispPlot"), traces, layout, PCFG);
+  const notes = {
+    beta: tr("Por debajo del corte, \\(\\gamma\\) es real: \\(\\beta\\) vale cero y el modo no se propaga. Muy por encima del corte, todas las curvas se acercan a la recta del espacio libre \\(k = \\omega/c\\).",
+             "Below cutoff \\(\\gamma\\) is real: \\(\\beta\\) is zero and the mode does not propagate. Far above cutoff every curve approaches the free-space line \\(k = \\omega/c\\)."),
+    atten: tr("\\(\\alpha = \\operatorname{Re}\\gamma\\). A la izquierda de cada corte, el decaimiento evanescente alcanza cientos de dB por metro. A la derecha, la pérdida en el cobre es una fracción de dB por metro, mínima para el \\(\\mathrm{TE}_{10}\\) cerca de \\(2{,}5\\,f_c\\). La curva es continua al cruzar el corte porque \\(\\gamma\\) incluye la pérdida en las paredes (ver la sección Modelo).",
+              "\\(\\alpha = \\operatorname{Re}\\gamma\\). Left of each cutoff, the evanescent decay reaches hundreds of dB per metre. Right of it, the copper loss is a fraction of a dB per metre, lowest for \\(\\mathrm{TE}_{10}\\) near \\(2.5\\,f_c\\). The curve is continuous through cutoff because \\(\\gamma\\) includes the wall loss (see the Model section)."),
+    lg: tr("La longitud de onda en la guía es siempre mayor que la del espacio libre y diverge en el corte.",
+           "The guide wavelength is always longer than the free-space one and diverges at cutoff."),
+    vp: tr("La velocidad de fase supera a \\(c\\). Como ninguna información viaja a \\(v_p\\), no se viola la relatividad.",
+           "The phase velocity exceeds \\(c\\). No information travels at \\(v_p\\), so relativity is not violated."),
+    vg: tr("La velocidad de grupo es siempre menor que \\(c\\) y se anula en el corte. \\(v_p\\,v_g = c^2\\).",
+           "The group velocity is always below \\(c\\) and vanishes at cutoff. \\(v_p\\,v_g = c^2\\)."),
+    zw: tr("Impedancia de onda \\(E_t/H_t\\). Los modos TE tienen impedancia alta cerca del corte, y los TM, baja. Muy por encima del corte, ambas tienden a \\(\\eta_0\\).",
+           "Wave impedance \\(E_t/H_t\\). TE modes have a high impedance near cutoff and TM modes a low one. Far above cutoff, both tend to \\(\\eta_0\\)."),
+    zpi: "",
+  };
+  $("#dispNote").innerHTML = notes[metric];
+  texify($("#dispNote"));
+}
+
+/* =============== Cross-section geometry (shared by every section) ===============
+   a and b move on a fixed grid of a few steps. */
+const GRID_A = [15, 20, 25, 30], GRID_B = [5, 7.5, 10, 12.5];   // mm
+const G = { a: 20, b: 10 };
+function mm(v) { return `${+(+v).toFixed(2)} mm`; }
+function nearest(grid, x) { return grid.reduce((p, q) => Math.abs(q - x) < Math.abs(p - x) ? q : p); }
+// lowest modes of the ideal guide, sorted by cutoff (GHz)
+function analyticModes(a, b, count = 8) {
+  const out = [];
+  for (let m = 0; m <= 6; m++) for (let n = 0; n <= 6; n++) {
+    if (!m && !n) continue;
+    const fc = fcOf(m, n, a / 1000, b / 1000) / 1e9;
+    out.push({ name: `TE${m}${n}`, type: "TE", m, n, fc });
+    if (m && n) out.push({ name: `TM${m}${n}`, type: "TM", m, n, fc });
+  }
+  return out.sort((p, q) => p.fc - q.fc || (p.type < q.type ? -1 : 1)).slice(0, count);
+}
+
+/* analytic propagation constant [alpha Np/m, beta rad/m]; a, b in mm, f in Hz.
+   Copper loss enters as γ² = kc² − k² + j·2k·(αcβ/k): far above cutoff α → αc, and γ stays finite and continuous
+   through cutoff (a lossy guide never has exactly β = 0, so a little real power still flows, and dies out, below it). */
+function anaGamma(mode, a, b, f) {
+  const A = a / 1000, B = b / 1000, k = 2 * Math.PI * f / C0, kc = Math.PI * Math.hypot(mode.m / A, mode.n / B);
+  const x = kc * kc - k * k, y = 2 * k * condLoss(mode.type, mode.m, mode.n, A, B, f), r = Math.hypot(x, y);
+  return [Math.sqrt((r + x) / 2), Math.sqrt((r - x) / 2)];
+}
+/* analytic TE/TM fields (Pozar ch. 3, e^{jωt}) of a wave launched with 1 W at z = 0 and travelling to +z,
+   sampled on xs × ys × zs (mm). Returns complex [re, im] x 3 per point, ordered [z][y][x] like a field export on a grid. */
+function anaField(mode, a, b, f, xs, ys, zs) {
+  const A = a / 1000, B = b / 1000, w = 2 * Math.PI * f, kx = mode.m * Math.PI / A, ky = mode.n * Math.PI / B, kc2 = kx * kx + ky * ky;
+  const [al, be] = anaGamma(mode, a, b, f), EPS0 = 1 / (MU0 * C0 * C0);
+  // complex coefficient of each component; transverse patterns: Ex, Hy ~ cos·sin; Ey, Hx ~ sin·cos; Ez, Hz ~ sin·sin (TM) / cos·cos (TE)
+  let cE, cH;
+  if (mode.type === "TE") { cE = [[0, w * MU0 * ky / kc2], [0, -w * MU0 * kx / kc2], [0, 0]]; cH = [[al * kx / kc2, be * kx / kc2], [al * ky / kc2, be * ky / kc2], [1, 0]]; }
+  else { cE = [[-al * kx / kc2, -be * kx / kc2], [-al * ky / kc2, -be * ky / kc2], [1, 0]]; cH = [[0, w * EPS0 * ky / kc2], [0, -w * EPS0 * kx / kc2], [0, 0]]; }
+  // TE: multiply by j so the transverse E is real at z = 0 (phase reference at the port, as in HFSS)
+  if (mode.type === "TE") for (const c of [...cE, ...cH]) [c[0], c[1]] = [-c[1], c[0]];
+  // transverse pattern of component c (0 x, 1 y, 2 z) for E (h = false) or H (h = true)
+  const pat = (c, x, y, h) => {
+    const cx = Math.cos(kx * x), sx = Math.sin(kx * x), cy = Math.cos(ky * y), sy = Math.sin(ky * y);
+    if (c === 2) return mode.type === "TE" ? cx * cy : sx * sy;
+    return (c === 0) !== !!h ? cx * sy : sx * cy;
+  };
+  // normalise to 1 W: P = ½ ∫ (Ex Hy* − Ey Hx*) dA (magnitude, so evanescent modes get unit reactive power)
+  const N = 48; let pr = 0, pi = 0;
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+    const x = (i + 0.5) * A / N, y = (j + 0.5) * B / N;
+    // Ex and Hy share the cos·sin pattern, Ey and Hx the sin·cos one
+    const t1 = pat(0, x, y) ** 2, t2 = pat(1, x, y) ** 2;
+    pr += 0.5 * (t1 * (cE[0][0] * cH[1][0] + cE[0][1] * cH[1][1]) - t2 * (cE[1][0] * cH[0][0] + cE[1][1] * cH[0][1]));
+    pi += 0.5 * (t1 * (cE[0][1] * cH[1][0] - cE[0][0] * cH[1][1]) - t2 * (cE[1][1] * cH[0][0] - cE[1][0] * cH[0][1]));
+  }
+  const P = Math.hypot(pr, pi) * A * B / (N * N), s = P > 0 ? 1 / Math.sqrt(P) : 1;
+  const nx = xs.length, ny = ys.length, nz = zs.length, E = new Float32Array(nx * ny * nz * 6), H = new Float32Array(nx * ny * nz * 6);
+  for (let iz = 0; iz < nz; iz++) {
+    const z = zs[iz] / 1000, ea = Math.exp(-al * z) * s, zr = ea * Math.cos(be * z), zi = -ea * Math.sin(be * z);
+    for (let iy = 0; iy < ny; iy++) for (let ix = 0; ix < nx; ix++) {
+      const x = xs[ix] / 1000, y = ys[iy] / 1000, o = ((iz * ny + iy) * nx + ix) * 6;
+      for (let c = 0; c < 3; c++) {
+        for (const [dst, cf, h] of [[E, cE[c], false], [H, cH[c], true]]) {
+          const pt = pat(c, x, y, h);
+          dst[o + 2 * c] = pt * (cf[0] * zr - cf[1] * zi);
+          dst[o + 2 * c + 1] = pt * (cf[0] * zi + cf[1] * zr);
+        }
+      }
+    }
+  }
+  return { E, H, alpha: al, beta: be };
+}
+function cellCentres(len, n) { return Array.from({ length: n }, (_, i) => (i + 0.5) * len / n); }
+
+function setupGeometry() {
+  for (const [id, grid] of [["A", GRID_A], ["B", GRID_B]]) {
+    const r = $(`#g${id}`);
+    r.min = grid[0]; r.max = grid[grid.length - 1]; r.step = grid[1] - grid[0];
+    $(`#g${id}l`).innerHTML = grid.map(x => `<option value="${x}"></option>`).join("");
+  }
+  $("#gA").oninput = () => setGeometry(+$("#gA").value, G.b);
+  $("#gB").oninput = () => setGeometry(G.a, +$("#gB").value);
+  setGeometry(G.a, G.b, true);
+}
+let geoRaf = 0;
+function simCmdUpdate() { $("#simCmd").textContent = `python guia_onda_hfss.py --a ${G.a} --b ${G.b} --resolver`; }
+function setGeometry(a, b, initial) {
+  a = nearest(GRID_A, a); b = nearest(GRID_B, b);
+  if (!initial && a === G.a && b === G.b) return;
+  G.a = a; G.b = b;
+  $("#gA").value = a; $("#gB").value = b;
+  $("#gAo").textContent = mm(a); $("#gBo").textContent = mm(b);
+  simCmdUpdate();
+  if (initial) return;
+  cancelAnimationFrame(geoRaf);
+  geoRaf = requestAnimationFrame(() => { renderCutoffCharts(); renderDispersion(); renderAtlas(); fxGeometryChanged(); });
+}
+
+/* =============== Field explorer (3D) =============== */
+// Slices: three movable cut planes plus the top wall, each with its own field and colour.
+const FX_F = { lo: 2.5, hi: 50, step: 2.5 };  // GHz, frequency sliders 2.5, 5, … 50
+// samples along z: at least 10 per free-space wavelength (λg is always longer), never fewer than FX_GRID
+function fxNz(f, L) { return Math.min(400, Math.max(FX_GRID[2], Math.ceil(L / (C0 / (f * 1e9) * 1000 / 10)))); }
+const fx = {
+  name: "TE10", f: 10, gam: 0, gph: 180, phase: 0, playing: false, data: null, g: null, mode: null,
+  sl: {
+    xy: { on: false, q: "E", comp: "auto", pos: 0 },
+    xz: { on: true, q: "E", comp: "auto", pos: 5 },
+    yz: { on: false, q: "H", comp: "auto", pos: 10 },
+    wall: { on: false, q: "J", comp: "mag" },
+  },
+};
+const FX_GRID = [20, 10, 50];    // sampling in x, y and (at least) z
+const FX_E0 = 3000;              // V/m, peak transverse port field (≈ 1 W in TE10 of WR-90 at 10 GHz)
+const SLICES = { xy: ["Corte transversal xy", "Cross-section xy"], xz: ["Corte horizontal xz", "Horizontal cut xz"], yz: ["Corte vertical yz", "Vertical cut yz"], wall: ["Pared superior", "Top wall"] };
+const sliceName = (key) => tr(...SLICES[key]);
+
+function loadFx() {
+  const f = fx.f, L = L_MM;
+  const modes = fixedModes(G.a, G.b), mode = modes.find(m => m.name === fx.name) || modes[0];
+  fx.name = mode.name;
+  const g = { a: G.a, b: G.b, L, x: cellCentres(G.a, FX_GRID[0]), y: cellCentres(G.b, FX_GRID[1]), z: cellCentres(L, fxNz(f, L)) };
+  const { E: FE, H: FH, alpha: al, beta: be } = anaField(mode, G.a, G.b, f * 1e9, g.x, g.y, g.z);
+  // keep the xy slice at the same z when the grid along z changes with frequency
+  if (fx.g && fx.g.z.length !== g.z.length) { const z0 = fx.g.z[fx.sl.xy.pos]; fx.sl.xy.pos = g.z.reduce((p, z, i) => Math.abs(z - z0) < Math.abs(g.z[p] - z0) ? i : p, 0); }
+  const nx = g.x.length, ny = g.y.length, nz = g.z.length, n = nx * ny * nz;
+  // same source for every size: the port drives a fixed peak transverse field (Et = E0 for TE, Ht = E0/η0 for TM),
+  // so the power it launches, ½Re(E×H*), follows β and fades smoothly to zero as the guide shrinks towards cutoff
+  {
+    const F = mode.type === "TM" ? FH : FE, tgt = mode.type === "TM" ? FX_E0 / ETA0 : FX_E0;
+    let pk = 0;
+    for (let p = 0; p < nx * ny; p++) pk = Math.max(pk, Math.hypot(F[p * 6], F[p * 6 + 1], F[p * 6 + 2], F[p * 6 + 3]));
+    const s = pk > 0 ? tgt / (pk * Math.exp(al * g.z[0] / 1000)) : 1;   // plane 0 sits at z0 > 0: undo its e^{−αz0}
+    for (let i = 0; i < n * 6; i++) { FE[i] *= s; FH[i] *= s; }
+  }
+  // complex totals with the reflected wave: B(z) = Γ e^{-γL} M[F(L - z)]
+  const eg = Math.exp(-al * L / 1000), ph = -be * L / 1000 + fx.gph * Math.PI / 180;
+  const gr = fx.gam * eg * Math.cos(ph), gi = fx.gam * eg * Math.sin(ph);
+  const E = new Float32Array(n * 6), H = new Float32Array(n * 6);
+  for (const [src, dst, mir] of [[FE, E, [1, 1, -1]], [FH, H, [-1, -1, 1]]]) {
+    for (let iz = 0; iz < nz; iz++) for (let p0 = 0; p0 < nx * ny; p0++) {
+      const p = iz * nx * ny + p0, pr = (nz - 1 - iz) * nx * ny + p0;
+      for (let c = 0; c < 3; c++) {
+        const fr = src[p * 6 + 2 * c], fi = src[p * 6 + 2 * c + 1];
+        const rr = src[pr * 6 + 2 * c] * mir[c], ri = src[pr * 6 + 2 * c + 1] * mir[c];
+        dst[p * 6 + 2 * c] = fr + gr * rr - gi * ri;
+        dst[p * 6 + 2 * c + 1] = fi + gr * ri + gi * rr;
+      }
+    }
+  }
+  fx.data = { E, H, nx, ny, nz, n };
+  fx.g = g; fx.mode = mode;
+  let Emax = 0, Hmax = 0, Smax = 0;
+  for (let p = 0; p < n; p++) { Emax = Math.max(Emax, amp(E.subarray(p * 6, p * 6 + 6))); Hmax = Math.max(Hmax, amp(H.subarray(p * 6, p * 6 + 6))); Smax = Math.max(Smax, Math.hypot(...fxPoynting(p))); }
+  // S keeps one absolute scale (E0²/2η0, the most a mode driven by E0 can carry), so shrinking the guide visibly dims it
+  Object.assign(fx.data, { Emax, Hmax, Smax: Math.max(Smax, FX_E0 * FX_E0 / (2 * ETA0)) });
+  // power through a cross-section at the port and at the far end
+  const pw = iz => { let s = 0; for (let p = 0; p < nx * ny; p++) s += fxPoynting(iz * nx * ny + p)[2]; return s * (g.a / nx) * (g.b / ny) * 1e-6; };
+  Object.assign(fx.data, { P0: pw(0), PL: pw(nz - 1) });
+  const prop = f > mode.fc;
+  $("#fxInfo").textContent = `${mode.name} ${tr("a", "at")} ${f} GHz · γ = α + jβ = ${sig(al)} + j${sig(be)} m⁻¹ · ${prop ? `λg = ${fmt(2 * Math.PI / be * 1000, 1)} mm` : `${tr("evanescente", "evanescent")}, α = ${fmt(al * 8.686 / 100, 1)} dB/cm`} · P = ${sig(fx.data.P0)} W ${tr("en el puerto 1", "at port 1")}, ${sig(fx.data.PL)} W ${tr("en", "at")} z = L`;
+  updateFxNote();
+  fxSliceLabels();
+  drawFx();
+}
+function updateFxNote() {
+  if (!fx.mode || !fx.data) return;
+  const m = fx.mode, f = fx.f, prop = f > m.fc, d = fx.data;
+  const peak = m.type === "TM" ? "\\(H = 3\\ \\mathrm{kV/m} / \\eta_0\\)" : "\\(E = 3\\ \\mathrm{kV/m}\\)";
+  let t = tr(`El puerto 1 excita el modo ${m.name} con el mismo campo para cualquier tamaño de guía (pico transversal ${peak}), así que la potencia que entra, ${sig(d.P0)} W, depende de la guía. `,
+             `Port 1 drives ${m.name} with the same field for every guide size (transverse peak ${peak}), so the power going in, ${sig(d.P0)} W, depends on the guide. `);
+  if (!prop) t += tr(`A ${f} GHz el modo está por debajo de su frecuencia de corte (${fmt(m.fc, 2)} GHz): el campo no viaja, sino que decae desde el puerto 1 como \\(e^{-\\alpha z}\\). Como \\(\\gamma\\) es casi puramente real, E y H quedan casi 90° fuera de fase. Es energía reactiva almacenada: al reproducir, uno se anula cuando el otro es máximo. Por eso el flujo de potencia real \\(\\mathbf{S}\\) es casi nulo. Lo poco que entra se pierde en las paredes y se extingue como \\(e^{-2\\alpha z}\\). `,
+                     `At ${f} GHz the mode is below its ${fmt(m.fc, 2)} GHz cutoff: the field does not travel, it decays from port 1 as \\(e^{-\\alpha z}\\). Since \\(\\gamma\\) is almost purely real, E and H are nearly 90° out of phase. This is stored reactive energy: when playing, one vanishes when the other peaks. That is why the real power flow \\(\\mathbf{S}\\) is almost zero. The little that goes in is lost in the walls and dies out as \\(e^{-2\\alpha z}\\). `);
+  else if (f < 1.15 * m.fc) t += tr(`Justo por encima del corte, \\(\\beta\\) es chica. Por eso el mismo campo en el puerto entrega poca potencia y la pérdida en el cobre \\(\\alpha\\) es grande: \\(\\mathbf{S}\\) se atenúa a lo largo de \\(z\\) como \\(e^{-2\\alpha z}\\) (${fmt(10 * Math.log10(Math.max(d.P0, 1e-30) / Math.max(d.PL, 1e-30)), 2)} dB en toda la guía). `,
+                                    `Just above cutoff, \\(\\beta\\) is small. The same port field therefore delivers little power and the copper loss \\(\\alpha\\) is large: \\(\\mathbf{S}\\) fades along \\(z\\) as \\(e^{-2\\alpha z}\\) (${fmt(10 * Math.log10(Math.max(d.P0, 1e-30) / Math.max(d.PL, 1e-30)), 2)} dB over the whole guide). `);
+  if (prop && fx.gam > 0) t += tr(`Con \\(|\\Gamma| = ${fx.gam}\\), la envolvente del campo ondula con un período de \\(\\lambda_g/2\\) y la ROE vale ${fmt((1 + fx.gam) / (1 - fx.gam + 1e-9), 2)}. `,
+                                  `With \\(|\\Gamma| = ${fx.gam}\\), the field envelope ripples with a period of \\(\\lambda_g/2\\) and the VSWR is ${fmt((1 + fx.gam) / (1 - fx.gam + 1e-9), 2)}. `);
+  else if (prop) t += tr("El puerto 2 está adaptado: la onda viaja sin reflexión y su envolvente es constante (salvo la pérdida en el cobre). ",
+                         "Port 2 is matched: the wave travels without reflection and its envelope is constant (apart from the copper loss). ");
+  if (v3.show.S || Object.values(fx.sl).some(sl => sl.on && sl.q === "S")) t += tr("\\(\\mathbf{S}\\) apunta en \\(+z\\) y es máximo donde \\(\\mathbf{E}\\) y \\(\\mathbf{H}\\) son intensos a la vez. Con \\(|\\Gamma| = 1\\), el flujo neto se anula. ",
+                                                                                     "\\(\\mathbf{S}\\) points along \\(+z\\) and peaks where \\(\\mathbf{E}\\) and \\(\\mathbf{H}\\) are both strong. With \\(|\\Gamma| = 1\\), the net flow vanishes. ");
+  if (v3.show.J || fx.sl.wall.on) t += tr("En el \\(\\mathrm{TE}_{10}\\), la corriente sobre la línea central de la pared ancha es puramente longitudinal (en \\(z\\)). Por eso una ranura angosta en el centro no perturba la guía. Ese es el principio de la línea ranurada.",
+                                          "In \\(\\mathrm{TE}_{10}\\), the current along the centre line of the broad wall is purely longitudinal (along \\(z\\)). That is why a narrow slot there does not disturb the guide. This is the principle of the slotted line.");
+  $("#fxNote").innerHTML = t; texify($("#fxNote"));
+}
+// grid indexing of one slice; `at` is its fixed coordinate in mm (places it in the 3D view)
+function planeSpec(key) {
+  const g = fx.g, { nx, ny, nz } = fx.data;
+  if (key === "wall") return { key, plane: "xz", cols: nz, rows: nx, idx: (i, j) => i * nx * ny + (ny - 1) * nx + j, physW: g.L, physH: g.a, axes: ["z", "x"], at: g.b - 0.05 };
+  const pos = fx.sl[key].pos;
+  if (key === "xy") return { key, plane: "xy", cols: nx, rows: ny, idx: (i, j) => pos * nx * ny + j * nx + i, physW: g.a, physH: g.b, axes: ["x", "y"], at: g.z[pos] };
+  if (key === "xz") return { key, plane: "xz", cols: nz, rows: nx, idx: (i, j) => i * nx * ny + pos * nx + j, physW: g.L, physH: g.a, axes: ["z", "x"], at: g.y[pos] };
+  return { key, plane: "yz", cols: nz, rows: ny, idx: (i, j) => i * nx * ny + j * nx + pos, physW: g.L, physH: g.b, axes: ["z", "y"], at: g.x[pos] };
+}
+// complex field 3-vector at point p for quantity q (E, H or wall current J)
+function fxComplex(p, q) {
+  const { E, H } = fx.data, o = p * 6;
+  if (q === "E") return E.subarray(o, o + 6);
+  if (q === "H") return H.subarray(o, o + 6);
+  const h = H.subarray(o, o + 6); return [-h[4], -h[5], 0, 0, h[0], h[1]];   // Js = n×H, n = -y on the top wall
+}
+function fxPoynting(p) {
+  const { E, H } = fx.data, o = p * 6, e = E.subarray(o, o + 6), h = H.subarray(o, o + 6);
+  const cr = (ar, ai, br, bi) => ar * br + ai * bi;   // Re(A B*)
+  return [0.5 * (cr(e[2], e[3], h[4], h[5]) - cr(e[4], e[5], h[2], h[3])), 0.5 * (cr(e[4], e[5], h[0], h[1]) - cr(e[0], e[1], h[4], h[5])), 0.5 * (cr(e[0], e[1], h[2], h[3]) - cr(e[2], e[3], h[0], h[1]))];
+}
+const AX = { x: 0, y: 1, z: 2 };
+// colour + arrow functions for one slice
+function sliceEval(key) {
+  const sl = fx.sl[key], q = sl.q, spec = planeSpec(key), ph = fx.phase * Math.PI / 180, ua = AX[spec.axes[0]], va = AX[spec.axes[1]];
+  const n = fx.data.n, unit = { E: "V/m", H: "A/m", S: "W/m²", J: "A/m" }[q];
+  let comp = sl.comp, val, vec, signed, maxv, vmax;
+  if (q === "S") {
+    const mx = fx.data.Smax;
+    if (comp === "auto") comp = "z";
+    signed = comp in AX;
+    val = (i, j) => { const s = fxPoynting(spec.idx(i, j)); return signed ? s[AX[comp]] : Math.hypot(...s); };
+    vec = (i, j) => { const s = fxPoynting(spec.idx(i, j)); return [s[ua], s[va]]; };
+    maxv = mx; vmax = mx;
+  } else {
+    const arr = q === "H" || q === "J" ? fx.data.H : fx.data.E;
+    if (comp === "auto") comp = q === "J" ? "mag" : "xyz"[strongest(arr, n)];
+    const cidx = AX[comp];
+    let mx = 0, amax = 0;
+    for (let p = 0; p < n; p++) { const c = fxComplex(p, q); amax = Math.max(amax, amp(c)); if (cidx !== undefined) mx = Math.max(mx, Math.hypot(c[2 * cidx], c[2 * cidx + 1])); }
+    signed = cidx !== undefined;
+    val = (i, j) => { const c = fxComplex(spec.idx(i, j), q); if (comp === "amp") return amp(c); const v = inst(c, ph); return signed ? v[cidx] : Math.hypot(v[0], v[1], v[2]); };
+    vec = (i, j) => { const v = inst(fxComplex(spec.idx(i, j), q), ph); return [v[ua], v[va]]; };
+    maxv = signed ? mx : amax; vmax = amax;
+  }
+  const compName = q === "S" ? (signed ? `S${comp}` : "|S|") : (comp === "amp" ? `${tr("pico", "peak")} |${q}|` : signed ? `${q}${comp}` : `|${q}(t)|`);
+  return { key, q, spec, val, vec, signed, maxv, vmax, unit, comp, compName };
+}
+function drawFx() {
+  if (!fx.data) return;
+  v3Update();
+  $("#fxPhaseRd").textContent = `${Math.round(fx.phase)}°`;
+}
+function fxSliceLabels() {
+  const g = fx.g; if (!g) return;
+  for (const [key, ax, arr] of [["xy", "z", g.z], ["xz", "y", g.y], ["yz", "x", g.x]]) {
+    const row = $(`#fxSlices [data-k="${key}"]`), r = row.querySelector("input[type=range]");
+    r.max = arr.length - 1; r.value = fx.sl[key].pos;
+    row.querySelector(".pl").textContent = `${ax} = ${fmt(arr[fx.sl[key].pos], 2)} mm`;
+  }
+}
+// one row of controls per slice
+function buildSliceRows() {
+  const comps = [["auto", tr("Componente más intensa", "Strongest component")], ["x", tr("Componente x", "x component")], ["y", tr("Componente y", "y component")], ["z", tr("Componente z", "z component")], ["mag", tr("|valor instantáneo|", "|instantaneous value|")], ["amp", tr("Amplitud pico", "Peak amplitude")]];
+  const wallComps = [["mag", "|J(t)|"], ["x", tr("Jx (transversal)", "Jx (transverse)")], ["z", "Jz (longitudinal)"], ["amp", tr("Pico |J|", "Peak |J|")]];
+  $("#fxSlices").innerHTML = `<div class="slhead"><span>${tr("Plano de corte", "Cut plane")}</span><span>${tr("Campo", "Field")}</span><span>${tr("El color muestra", "Colour shows")}</span><span>${tr("Posición", "Position")}</span></div>` +
+    Object.keys(SLICES).map(key => { const title = sliceName(key);
+      const sl = fx.sl[key], wall = key === "wall";
+      return `<div class="slrow" data-k="${key}">
+        <label class="chk"><input type="checkbox" ${sl.on ? "checked" : ""}> ${title}</label>
+        ${wall ? `<span class="muted slfix">${tr("corriente J", "current J")}</span>` : `<div class="seg sq">${["E", "H", "S"].map(q => `<button type="button" data-v="${q}" aria-pressed="${sl.q === q}">${q}</button>`).join("")}</div>`}
+        <select class="sc" aria-label="${title}: color">${(wall ? wallComps : comps).map(([v, t]) => `<option value="${v}" ${sl.comp === v ? "selected" : ""}>${t}</option>`).join("")}</select>
+        ${wall ? `<span class="muted slfix">y = b (${tr("cara interior", "inner face")})</span>` : `<label class="slpos"><span class="pl"></span><input type="range" min="0" max="10" value="${sl.pos}" aria-label="${title}: ${tr("posición", "position")}"></label>`}
+      </div>`;
+    }).join("");
+  $("#fxSlices").querySelectorAll(".slrow").forEach(row => {
+    const key = row.dataset.k, sl = fx.sl[key];
+    row.querySelector(".chk input").onchange = e => { sl.on = e.target.checked; updateFxNote(); drawFx(); };
+    const seg = row.querySelector(".sq"); if (seg) onSeg(seg, v => { sl.q = v; updateFxNote(); drawFx(); });
+    row.querySelector(".sc").onchange = e => { sl.comp = e.target.value; drawFx(); };
+    const r = row.querySelector("input[type=range]"); if (r) r.oninput = e => { sl.pos = +e.target.value; fxSliceLabels(); drawFx(); };
+  });
+}
+let fxRaf = 0, fxLast = 0;
+function fxLoop(t) {
+  if (!fx.playing) return;
+  if (t - fxLast > 40) { fx.phase = (fx.phase + 6) % 360; $("#fxPhase").value = fx.phase; drawFx(); fxLast = t; }
+  fxRaf = requestAnimationFrame(fxLoop);
+}
+function fxModeOptions() {
+  const ms = fixedModes(G.a, G.b);
+  $("#fxMode").innerHTML = ms.map(m => `<option value="${m.name}">${m.name}  (fc = ${fmt(m.fc, 2)} GHz)</option>`).join("");
+  if (!ms.some(m => m.name === fx.name)) fx.name = ms[0].name;
+  $("#fxMode").value = fx.name;
+}
+function playLabel() { $("#fxPlay").textContent = fx.playing ? tr("Pausa", "Pause") : tr("Reproducir", "Play"); }
+function fxGeometryChanged() { fxModeOptions(); loadFx(); }
+function setupFx() {
+  const r = $("#fxFreq"), ticks = [];
+  r.min = FX_F.lo; r.max = FX_F.hi; r.step = FX_F.step; r.value = fx.f;
+  for (let f = FX_F.lo; f <= FX_F.hi; f += FX_F.step) ticks.push(`<option value="${f}"></option>`);
+  $("#fxFreqL").innerHTML = ticks.join("");
+  const showF = () => { $("#fxFreqO").textContent = `${fx.f} GHz`; };
+  showF();
+  fxModeOptions();
+  $("#fxMode").onchange = e => { fx.name = e.target.value; loadFx(); };
+  r.oninput = e => { fx.f = +e.target.value; showF(); loadFx(); };
+  $("#fxGam").oninput = e => { fx.gam = +e.target.value; $("#fxGamO").textContent = fx.gam.toFixed(2); loadFx(); };
+  onSeg($("#fxGph"), v => { fx.gph = +v; loadFx(); });
+  $("#fxPhase").oninput = e => { fx.phase = +e.target.value; drawFx(); };
+  $("#fxPlay").onclick = () => { fx.playing = !fx.playing; playLabel(); if (fx.playing) fxRaf = requestAnimationFrame(fxLoop); };
+  playLabel();
+  buildSliceRows();
+  v3Setup();
+  loadFx();
+}
+
+/* ---------- 3D view: a small WebGL2 renderer (no library) ----------
+   World coordinates are the guide ones in mm (as in the HFSS script), shifted so the guide centre is the origin.
+   Arrows are one instanced mesh: per instance centre, unit direction + length, colour + magnitude. */
+const v3 = {
+  gl: null, show: { E: true, H: false, S: false, J: false }, region: "vol", walls: "off", size: 1,
+  cam: null, n: 0, inst: null, col: {}, slices: {}, labels: [], raf: 0, geoKey: "",
+};
+const V3_ISO = { th: -2.15, ph: 0.42, dist: 108, tgt: [0, -2, 0] };
+const V3_VIEWS = { iso: V3_ISO, port: { th: Math.PI, ph: 0.06, dist: 112, tgt: [0, 0, 0] }, side: { th: -Math.PI / 2, ph: 0.02, dist: 118, tgt: [0, 0, 0] }, top: { th: -Math.PI / 2, ph: 1.5, dist: 118, tgt: [0, 0, 0] } };
+
+function m4mul(a, b) { const r = new Array(16); for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { let s = 0; for (let k = 0; k < 4; k++) s += a[i + 4 * k] * b[k + 4 * j]; r[i + 4 * j] = s; } return r; }
+function m4persp(fovy, asp, n, f) { const t = 1 / Math.tan(fovy / 2); return [t / asp, 0, 0, 0, 0, t, 0, 0, 0, 0, (f + n) / (n - f), -1, 0, 0, 2 * f * n / (n - f), 0]; }
+function v3sub(a, b) { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; }
+function v3cross(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+function v3norm(a) { const l = Math.hypot(...a) || 1; return [a[0] / l, a[1] / l, a[2] / l]; }
+function v3dot(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+function m4look(e, c, u) {
+  const z = v3norm(v3sub(e, c)), x = v3norm(v3cross(u, z)), y = v3cross(z, x);
+  return [x[0], y[0], z[0], 0, x[1], y[1], z[1], 0, x[2], y[2], z[2], 0, -v3dot(x, e), -v3dot(y, e), -v3dot(z, e), 1];
+}
+// narrow (phone) canvases back the camera off so the guide still fits across
+function v3eye() {
+  const c = v3.cam, cv = v3.gl.canvas, r = c.dist * Math.max(1, 2 / (cv.clientWidth / cv.clientHeight || 2));
+  return [c.tgt[0] + r * Math.cos(c.ph) * Math.sin(c.th), c.tgt[1] + r * Math.sin(c.ph), c.tgt[2] + r * Math.cos(c.ph) * Math.cos(c.th)];
+}
+
+const V3_MESH_VS = `#version 300 es
+in vec3 aPos; in vec3 aNor; in vec2 aUv;
+uniform mat4 uVP; out vec3 vN; out vec2 vUv; out vec3 vW;
+void main() { vN = aNor; vUv = aUv; vW = aPos; gl_Position = uVP * vec4(aPos, 1.0); }`;
+const V3_MESH_FS = `#version 300 es
+precision highp float;
+in vec3 vN; in vec2 vUv; in vec3 vW;
+uniform vec4 uCol; uniform int uMode; uniform sampler2D uTex; uniform vec3 uEye;
+out vec4 o;
+void main() {
+  if (uMode == 0) { o = uCol; return; }
+  if (uMode == 2) { o = vec4(texture(uTex, vUv).rgb, uCol.a); return; }
+  vec3 n = normalize(vN), v = normalize(uEye - vW);
+  float d = abs(dot(n, v));
+  o = vec4(uCol.rgb * (0.5 + 0.5 * d) + vec3(0.18) * pow(d, 30.0), uCol.a);
+}`;
+const V3_ARROW_VS = `#version 300 es
+in vec3 aPos; in vec3 aNor; in vec3 iPos; in vec4 iDir; in vec4 iCol;
+uniform mat4 uVP; uniform float uW;
+out vec3 vN; out vec3 vW; out vec3 vC;
+void main() {
+  vec3 d = iDir.xyz; float L = iDir.w;
+  vec3 h = abs(d.y) < 0.95 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
+  vec3 xa = normalize(cross(d, h)), za = cross(xa, d);
+  float w = uW * (0.45 + 0.55 * iCol.a);
+  vec3 p = iPos + xa * aPos.x * w + d * aPos.y * L + za * aPos.z * w;
+  vN = xa * aNor.x + d * aNor.y + za * aNor.z; vW = p;
+  vC = iCol.rgb * (0.55 + 0.45 * iCol.a);
+  gl_Position = uVP * vec4(p, 1.0);
+}`;
+const V3_ARROW_FS = `#version 300 es
+precision highp float;
+in vec3 vN; in vec3 vW; in vec3 vC; uniform vec3 uEye; out vec4 o;
+void main() {
+  vec3 n = normalize(vN), v = normalize(uEye - vW);
+  float d = abs(dot(n, v));
+  o = vec4(vC * (0.35 + 0.65 * d) + vec3(0.25) * pow(d, 24.0), 1.0);
+}`;
+
+function v3prog(gl, vs, fs) {
+  const p = gl.createProgram();
+  for (const [type, src] of [[gl.VERTEX_SHADER, vs], [gl.FRAGMENT_SHADER, fs]]) {
+    const sh = gl.createShader(type); gl.shaderSource(sh, src); gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh));
+    gl.attachShader(p, sh);
+  }
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  const u = {}, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+  for (let i = 0; i < n; i++) { const name = gl.getActiveUniform(p, i).name; u[name] = gl.getUniformLocation(p, name); }
+  return { p, u, a: (name) => gl.getAttribLocation(p, name) };
+}
+// unit arrow along +y, centred on the origin: shaft radius 1, head radius 2.6, length 1
+function v3arrowGeom(seg = 12) {
+  const P = [], N = [], y0 = -0.5, y1 = 0.12, y2 = 0.5, rs = 1, rh = 2.6;
+  const ring = (k) => [Math.cos(2 * Math.PI * k / seg), Math.sin(2 * Math.PI * k / seg)];
+  const tri = (a, b, c, na, nb, nc) => { P.push(...a, ...b, ...c); N.push(...na, ...nb, ...nc); };
+  const hs = (y2 - y1) / rh;   // cone normal slope
+  for (let k = 0; k < seg; k++) {
+    const [c0, s0] = ring(k), [c1, s1] = ring(k + 1);
+    const a0 = [rs * c0, y0, rs * s0], a1 = [rs * c1, y0, rs * s1], b0 = [rs * c0, y1, rs * s0], b1 = [rs * c1, y1, rs * s1];
+    tri(a0, b0, b1, [c0, 0, s0], [c0, 0, s0], [c1, 0, s1]); tri(a0, b1, a1, [c0, 0, s0], [c1, 0, s1], [c1, 0, s1]);
+    tri([0, y0, 0], a1, a0, [0, -1, 0], [0, -1, 0], [0, -1, 0]);
+    const h0 = [rh * c0, y1, rh * s0], h1 = [rh * c1, y1, rh * s1];
+    tri([0, y1, 0], h0, h1, [0, -1, 0], [0, -1, 0], [0, -1, 0]);
+    const n0 = v3norm([c0, hs, s0]), n1 = v3norm([c1, hs, s1]), nm = v3norm([(c0 + c1) / 2, hs, (s0 + s1) / 2]);
+    tri(h0, [0, y2, 0], h1, n0, nm, n1);
+  }
+  return { P: new Float32Array(P), N: new Float32Array(N), count: P.length / 3 };
+}
+function v3buf(gl, data, loc, size) {
+  const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+  if (loc >= 0) { gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, size, gl.FLOAT, false, 0, 0); }
+  return b;
+}
+// quad mesh from 4 corners (counter-clockwise) with uv (0,0) (1,0) (1,1) (0,1)
+function v3quad(gl, prog, c) {
+  const vao = gl.createVertexArray(); gl.bindVertexArray(vao);
+  const nrm = v3norm(v3cross(v3sub(c[1], c[0]), v3sub(c[3], c[0])));
+  const idx = [0, 1, 2, 0, 2, 3], uv = [[0, 0], [1, 0], [1, 1], [0, 1]];
+  v3buf(gl, new Float32Array(idx.flatMap(i => c[i])), prog.a("aPos"), 3);
+  v3buf(gl, new Float32Array(idx.flatMap(() => nrm)), prog.a("aNor"), 3);
+  v3buf(gl, new Float32Array(idx.flatMap(i => uv[i])), prog.a("aUv"), 2);
+  gl.bindVertexArray(null);
+  return { vao, n: 6, normal: nrm, centre: [0, 1, 2].map(k => (c[0][k] + c[2][k]) / 2) };
+}
+function v3lines(gl, prog, pts) {
+  const vao = gl.createVertexArray(); gl.bindVertexArray(vao);
+  v3buf(gl, new Float32Array(pts.flat()), prog.a("aPos"), 3);
+  gl.bindVertexArray(null);
+  return { vao, n: pts.length };
+}
+
+function v3Colors() {
+  const f = (name) => hex2rgb(css(name)).map(x => x / 255);
+  v3.col = { E: f("--fE"), H: f("--fH"), S: f("--fS"), J: f("--fJ"), copper: f("--copper"), stage: f("--stage"), edge: f("--accent"), fg: f("--fg"), faint: f("--faint") };
+  v3Render();
+}
+function v3Setup() {
+  const cv = $("#v3Canvas"), gl = cv.getContext("webgl2", { antialias: true, premultipliedAlpha: false });
+  if (!gl) { $("#v3Stage").innerHTML = `<p class="loading" style="padding:16px">${tr("La vista 3D necesita WebGL2, que este navegador no ofrece.", "The 3D view needs WebGL2, which this browser does not provide.")}</p>`; return; }
+  v3.gl = gl;
+  v3.mesh = v3prog(gl, V3_MESH_VS, V3_MESH_FS);
+  v3.arrow = v3prog(gl, V3_ARROW_VS, V3_ARROW_FS);
+  // instanced arrows
+  const g = v3arrowGeom();
+  v3.arrowVao = gl.createVertexArray(); gl.bindVertexArray(v3.arrowVao);
+  v3buf(gl, g.P, v3.arrow.a("aPos"), 3); v3buf(gl, g.N, v3.arrow.a("aNor"), 3);
+  v3.arrowCount = g.count;
+  v3.instBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, v3.instBuf);
+  const st = 11 * 4;
+  for (const [name, size, off] of [["iPos", 3, 0], ["iDir", 4, 12], ["iCol", 4, 28]]) {
+    const loc = v3.arrow.a(name); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, size, gl.FLOAT, false, st, off); gl.vertexAttribDivisor(loc, 1);
+  }
+  gl.bindVertexArray(null);
+  v3.inst = new Float32Array(60000 * 11);
+  // one texture per slice
+  for (const key of Object.keys(SLICES)) {
+    const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+    for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+    v3.slices[key] = { tex, quad: null };
+  }
+  v3.cam = structuredClone(V3_ISO);
+  v3Colors();
+  v3Controls(cv);
+}
+// walls, edges, axes and labels for an a × b × L guide (centred at the origin); rebuilt when the sliders move
+function v3Geometry(a, b, L) {
+  const gl = v3.gl, old = [...(v3.wallsGeo || []).map(w => w.q), v3.edges, v3.axes].filter(Boolean);
+  for (const o of old) gl.deleteVertexArray(o.vao);
+  v3.geoKey = `${a}x${b}`;
+  v3.off = [a / 2, b / 2, L / 2];
+  const P = (x, y, z) => [x - a / 2, y - b / 2, z - L / 2];
+  v3.wallsGeo = [
+    { name: "bottom", q: v3quad(gl, v3.mesh, [P(0, 0, 0), P(a, 0, 0), P(a, 0, L), P(0, 0, L)]), out: [0, -1, 0] },
+    { name: "top", q: v3quad(gl, v3.mesh, [P(0, b, 0), P(0, b, L), P(a, b, L), P(a, b, 0)]), out: [0, 1, 0] },
+    { name: "x0", q: v3quad(gl, v3.mesh, [P(0, 0, 0), P(0, 0, L), P(0, b, L), P(0, b, 0)]), out: [-1, 0, 0] },
+    { name: "xa", q: v3quad(gl, v3.mesh, [P(a, 0, 0), P(a, b, 0), P(a, b, L), P(a, 0, L)]), out: [1, 0, 0] },
+  ];
+  const box = [];
+  for (const z of [0, L]) box.push(P(0, 0, z), P(a, 0, z), P(a, 0, z), P(a, b, z), P(a, b, z), P(0, b, z), P(0, b, z), P(0, 0, z));
+  for (const [x, y] of [[0, 0], [a, 0], [a, b], [0, b]]) box.push(P(x, y, 0), P(x, y, L));
+  v3.edges = v3lines(gl, v3.mesh, box);
+  const o = P(-4, 0, -4), ax = 10;
+  v3.axes = v3lines(gl, v3.mesh, [o, [o[0] + ax, o[1], o[2]], o, [o[0], o[1] + ax, o[2]], o, [o[0], o[1], o[2] + ax]]);
+  v3.labels = [
+    { t: tr("Puerto 1", "Port 1"), p: P(a / 2, b + 5, 0), cls: "port" }, { t: tr("Puerto 2", "Port 2"), p: P(a / 2, b + 5, L), cls: "port" },
+    { t: "x", p: [o[0] + ax + 2.5, o[1], o[2]] }, { t: "y", p: [o[0], o[1] + ax + 2.5, o[2]] }, { t: "z", p: [o[0], o[1], o[2] + ax + 2.5] },
+    { t: `a = ${mm(a)}`, p: P(a / 2, -3.5, L) }, { t: `b = ${mm(b)}`, p: P(a + 9, b / 2, L) },
+  ];
+  $("#v3Labels").innerHTML = v3.labels.map(l => `<span class="${l.cls || ""}">${l.t}</span>`).join("");
+}
+function v3Controls(cv) {
+  const ptrs = new Map(); let pinch = 0;
+  cv.addEventListener("contextmenu", e => e.preventDefault());
+  cv.addEventListener("pointerdown", e => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, pan: e.button === 2 || e.shiftKey }); pinch = 0; });
+  const up = e => { ptrs.delete(e.pointerId); pinch = 0; };
+  cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
+  cv.addEventListener("pointermove", e => {
+    const p = ptrs.get(e.pointerId); if (!p) return;
+    const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+    const c = v3.cam;
+    if (ptrs.size === 2) {
+      const [q, r] = [...ptrs.values()], d = Math.hypot(q.x - r.x, q.y - r.y);
+      if (pinch) c.dist = Math.min(400, Math.max(15, c.dist * pinch / d));
+      pinch = d;
+    } else if (p.pan) {
+      const e0 = v3eye(), fw = v3norm(v3sub(c.tgt, e0)), rt = v3norm(v3cross(fw, [0, 1, 0])), upv = v3cross(rt, fw), k = c.dist * 0.0016;
+      for (let i = 0; i < 3; i++) c.tgt[i] += (-dx * rt[i] + dy * upv[i]) * k;
+    } else {
+      c.th -= dx * 0.008; c.ph = Math.min(1.53, Math.max(-1.53, c.ph + dy * 0.008));
+    }
+    v3Render();
+  });
+  cv.addEventListener("wheel", e => { e.preventDefault(); v3.cam.dist = Math.min(400, Math.max(15, v3.cam.dist * Math.exp(e.deltaY * 0.0012))); v3Render(); }, { passive: false });
+  cv.addEventListener("dblclick", () => { v3.cam = structuredClone(V3_ISO); v3Render(); });
+  document.querySelectorAll(".v3views button").forEach(b => b.onclick = () => { v3.cam = structuredClone(V3_VIEWS[b.dataset.view]); v3Render(); });
+  $("#v3Show").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    const on = b.getAttribute("aria-pressed") !== "true"; b.setAttribute("aria-pressed", String(on)); v3.show[b.dataset.v] = on; updateFxNote(); drawFx();
+  });
+  onSeg($("#v3Region"), v => { v3.region = v; drawFx(); });
+  $("#v3Size").oninput = e => { v3.size = +e.target.value; drawFx(); };
+}
+
+// fill the arrow instances for the current field, phase and options
+function v3Arrows() {
+  const d = fx.data, g = fx.g, { nx, ny, nz } = d, ph = fx.phase * Math.PI / 180, o = v3.off, buf = v3.inst;
+  // at high frequency the arrow planes crowd together along z: arrows shrink with their spacing (v3.k, also used for the width)
+  const onPlane = v3.region === "plane", dz = g.L / nz, zsp = Math.min(4, C0 / (fx.f * 1e9) * 1000 / 5);
+  v3.k = onPlane ? Math.sqrt(Math.min(1, dz / 2)) : Math.sqrt(zsp / 4);
+  const Lmax = (onPlane ? 2.2 : 3.4) * v3.size * v3.k;
+  let k = 0;
+  const push = (x, y, z, v, vmax, col) => {
+    const m = Math.hypot(v[0], v[1], v[2]), mn = m / vmax;
+    if (!(mn >= 0.04) || k * 11 >= buf.length) return;
+    const q = k++ * 11;
+    buf[q] = x - o[0]; buf[q + 1] = y - o[1]; buf[q + 2] = z - o[2];
+    buf[q + 3] = v[0] / m; buf[q + 4] = v[1] / m; buf[q + 5] = v[2] / m; buf[q + 6] = Lmax * Math.min(1, mn);
+    buf[q + 7] = col[0]; buf[q + 8] = col[1]; buf[q + 9] = col[2]; buf[q + 10] = Math.min(1, mn);
+  };
+  const pidx = (ix, iy, iz) => iz * nx * ny + iy * nx + ix;
+  // E and H: instantaneous; S: time-averaged power flow
+  const vecAt = (q, ix, iy, iz) => q === "S" ? fxPoynting(pidx(ix, iy, iz)) : inst(fxComplex(pidx(ix, iy, iz), q), ph);
+  for (const q of ["E", "H", "S"]) {
+    if (!v3.show[q]) continue;
+    const vmax = d[q + "max"], col = v3.col[q];
+    if (onPlane) {
+      // full resolution on every cut plane that is switched on
+      for (const key of ["xy", "xz", "yz"]) {
+        if (!fx.sl[key].on) continue;
+        const pos = fx.sl[key].pos;
+        const [ixs, iys, izs] = key === "xy" ? [[0, nx], [0, ny], [pos, pos + 1]] : key === "xz" ? [[0, nx], [pos, pos + 1], [0, nz]] : [[pos, pos + 1], [0, ny], [0, nz]];
+        for (let iz = izs[0]; iz < izs[1]; iz++) for (let iy = iys[0]; iy < iys[1]; iy++) for (let ix = ixs[0]; ix < ixs[1]; ix++)
+          push(g.x[ix], g.y[iy], g.z[iz], vecAt(q, ix, iy, iz), vmax, col);
+      }
+    } else {
+      // whole volume, every 4 mm in z (closer at high frequency, ≥ 5 planes per wavelength): average 2 × 2 cells in x, y
+      // so the arrows sit symmetrically about the guide centre
+      const zs = Math.max(1, Math.round(zsp / dz));
+      for (let iz = 0; iz < nz; iz += zs) for (let iy = 0; iy + 1 < ny; iy += 2) for (let ix = 0; ix + 1 < nx; ix += 2) {
+        const c = [0, 0, 0];
+        for (const [jx, jy] of [[ix, iy], [ix + 1, iy], [ix, iy + 1], [ix + 1, iy + 1]]) { const s = vecAt(q, jx, jy, iz); for (let t = 0; t < 3; t++) c[t] += s[t] / 4; }
+        push((g.x[ix] + g.x[ix + 1]) / 2, (g.y[iy] + g.y[iy + 1]) / 2, g.z[iz], c, vmax, col);
+      }
+    }
+  }
+  if (v3.show.J) {
+    // surface current J = n × H on the four walls (n points from the wall into the guide), H from the nearest cell
+    const a = g.a, b = g.b, e = 0.2, col = v3.col.J, vmax = d.Hmax;
+    for (let iz = 0; iz < nz; iz++) {
+      for (let ix = 0; ix < nx; ix += 2) {
+        const hb = vecAt("H", ix, 0, iz), ht = vecAt("H", ix, ny - 1, iz);
+        push(g.x[ix], e, g.z[iz], [hb[2], 0, -hb[0]], vmax, col);         // bottom, n = +y
+        push(g.x[ix], b - e, g.z[iz], [-ht[2], 0, ht[0]], vmax, col);     // top, n = -y
+      }
+      for (let iy = 0; iy < ny; iy += 2) {
+        const h0 = vecAt("H", 0, iy, iz), ha = vecAt("H", nx - 1, iy, iz);
+        push(e, g.y[iy], g.z[iz], [0, -h0[2], h0[1]], vmax, col);          // x = 0, n = +x
+        push(a - e, g.y[iy], g.z[iz], [0, ha[2], -ha[1]], vmax, col);      // x = a, n = -x
+      }
+    }
+  }
+  v3.n = k;
+}
+// colour slice: one cut plane as a texture
+function v3Slice(ev) {
+  const gl = v3.gl, spec = ev.spec, { cols, rows } = spec, px = new Uint8Array(cols * rows * 4), lut = ev.signed ? LUT_DIV : LUT_SEQ;
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+    let t = ev.val(i, j) / (ev.maxv || 1); t = ev.signed ? (t + 1) / 2 : t;
+    const li = Math.max(0, Math.min(255, Math.round(t * 255))), p = (j * cols + i) * 4;
+    px[p] = lut[li * 3]; px[p + 1] = lut[li * 3 + 1]; px[p + 2] = lut[li * 3 + 2]; px[p + 3] = 255;
+  }
+  const s = v3.slices[ev.key];
+  gl.bindTexture(gl.TEXTURE_2D, s.tex);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, cols, rows, 0, gl.RGBA, gl.UNSIGNED_BYTE, px);
+  // corners in (u, v) = (axis 0, axis 1) order so the texture lands the right way round
+  const g = fx.g, o = v3.off, size = { x: g.a, y: g.b, z: g.L };
+  const pt = (u, v) => {
+    const r = { x: 0, y: 0, z: 0 };
+    r[spec.axes[0]] = u; r[spec.axes[1]] = v;
+    r[{ xy: "z", xz: "y", yz: "x" }[spec.plane]] = spec.at;
+    return [r.x - o[0], r.y - o[1], r.z - o[2]];
+  };
+  const U = size[spec.axes[0]], W = size[spec.axes[1]];
+  if (s.quad) gl.deleteVertexArray(s.quad.vao);
+  s.quad = v3quad(gl, v3.mesh, [pt(0, 0), pt(U, 0), pt(U, W), pt(0, W)]);
+}
+// colour-bar tick: plain number in a readable range, otherwise mantissa × 10ⁿ
+function cbNum(x) {
+  if (!x) return "0";
+  if (x >= 0.01 && x < 1e4) return String(+x.toPrecision(3));
+  const n = Math.floor(Math.log10(x)), sup = String(n).replace(/./g, c => "⁰¹²³⁴⁵⁶⁷⁸⁹"["0123456789".indexOf(c)] || "⁻");
+  return `${+(x / 10 ** n).toPrecision(3)}×10${sup}`;
+}
+function v3Update() {
+  if (!v3.gl || !fx.data) return;
+  const g = fx.g;
+  if (v3.geoKey !== `${g.a}x${g.b}`) v3Geometry(g.a, g.b, g.L);
+  v3Arrows();
+  const items = [];
+  if (v3.show.E) items.push(`<span><i class="sw" style="background:var(--fE)"></i>${tr("campo E", "E field")}</span>`);
+  if (v3.show.H) items.push(`<span><i class="sw" style="background:var(--fH)"></i>${tr("campo H", "H field")}</span>`);
+  if (v3.show.S) items.push(`<span><i class="sw" style="background:var(--fS)"></i>${tr("flujo de potencia S (promedio)", "power flow S (time average)")}</span>`);
+  if (v3.show.J) items.push(`<span><i class="sw" style="background:var(--fJ)"></i>${tr("corriente J = n × H", "current J = n × H")}</span>`);
+  const bars = [];
+  for (const key of Object.keys(SLICES)) {
+    if (!fx.sl[key].on) continue;
+    const e = sliceEval(key);
+    v3Slice(e);
+    const m = cbNum(e.maxv), ticks = e.signed ? [`+${m}`, "0", `−${m}`] : [m, cbNum(e.maxv / 2), "0"];
+    bars.push(`<div class="cb" title="${sliceName(key)}"><div class="ttl"><b>${key === "wall" ? tr("pared", "wall") : key}</b> · ${e.compName}<br>${e.unit}</div><div class="bar ${e.signed ? "div" : "seq"}"></div><div class="ticks">${ticks.map(t => `<span>${t}</span>`).join("")}</div></div>`);
+  }
+  $("#v3Cbar").innerHTML = bars.join("");
+  $("#v3Legend").innerHTML = items.join("");
+  v3Render();
+}
+function v3Render() { if (v3.gl && !v3.raf) v3.raf = requestAnimationFrame(v3Draw); }
+function v3Draw() {
+  v3.raf = 0;
+  if (!v3.wallsGeo) return;
+  const gl = v3.gl, cv = gl.canvas, dpr = Math.min(2, window.devicePixelRatio || 1);
+  const W = cv.clientWidth, H = cv.clientHeight;
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  gl.viewport(0, 0, cv.width, cv.height);
+  const bg = v3.col.stage; gl.clearColor(bg[0], bg[1], bg[2], 1);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.enable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE);
+  const eye = v3eye(), VP = m4mul(m4persp(0.62, W / H, 1, 1500), m4look(eye, v3.cam.tgt, [0, 1, 0]));
+  // arrows (opaque)
+  const A = v3.arrow, onPlane = v3.region === "plane";
+  gl.useProgram(A.p); gl.uniformMatrix4fv(A.u.uVP, false, VP); gl.uniform3fv(A.u.uEye, eye); gl.uniform1f(A.u.uW, (onPlane ? 0.1 : 0.14) * v3.size * (v3.k || 1));
+  if (v3.n) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, v3.instBuf); gl.bufferData(gl.ARRAY_BUFFER, v3.inst.subarray(0, v3.n * 11), gl.DYNAMIC_DRAW);
+    gl.bindVertexArray(v3.arrowVao); gl.drawArraysInstanced(gl.TRIANGLES, 0, v3.arrowCount, v3.n);
+  }
+  const M = v3.mesh; gl.useProgram(M.p); gl.uniformMatrix4fv(M.u.uVP, false, VP); gl.uniform3fv(M.u.uEye, eye);
+  const draw = (g, mode, col, prim = gl.TRIANGLES) => { gl.uniform1i(M.u.uMode, mode); gl.uniform4fv(M.u.uCol, col); gl.bindVertexArray(g.vao); gl.drawArrays(prim, 0, g.n); };
+  // cut-away: walls whose outside faces the camera are removed, the far ones are solid copper
+  const facing = w => v3dot(w.out, v3sub(eye, w.q.centre)) > 0;
+  if (v3.walls === "cut") for (const w of v3.wallsGeo) if (!facing(w)) draw(w.q, 1, [...v3.col.copper, 1]);
+  draw(v3.edges, 0, [...v3.col.edge, 1], gl.LINES);
+  draw(v3.axes, 0, [...v3.col.faint, 1], gl.LINES);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  // slices: translucent when arrows are drawn through them
+  gl.depthMask(false); gl.activeTexture(gl.TEXTURE0); gl.uniform1i(M.u.uTex, 0);
+  for (const key of Object.keys(SLICES)) {
+    const s = v3.slices[key];
+    if (!fx.sl[key].on || !s.quad) continue;
+    gl.bindTexture(gl.TEXTURE_2D, s.tex);
+    draw(s.quad, 2, [1, 1, 1, v3.n ? 0.72 : 0.92]);
+  }
+  gl.depthMask(true);
+  if (v3.walls === "glass") { gl.depthMask(false); for (const w of v3.wallsGeo) draw(w.q, 1, [...v3.col.copper, 0.16]); gl.depthMask(true); }
+  gl.disable(gl.BLEND); gl.bindVertexArray(null);
+  // HTML labels
+  const spans = $("#v3Labels").children;
+  v3.labels.forEach((l, i) => {
+    const p = l.p, c = [0, 1, 2, 3].map(r => VP[r] * p[0] + VP[r + 4] * p[1] + VP[r + 8] * p[2] + VP[r + 12]);
+    const s = spans[i]; if (c[3] <= 0) { s.style.display = "none"; return; }
+    s.style.display = ""; s.style.left = ((c[0] / c[3] + 1) / 2 * W) + "px"; s.style.top = ((1 - c[1] / c[3]) / 2 * H) + "px";
+  });
+}
+
+/* =============== language switch: static text =============== */
+/* Every translatable element keeps the Spanish HTML it was written with; I18N_EN maps that HTML to its English
+   version (lang/en.js). An element whose Spanish text has no entry simply stays in Spanish. */
+const I18N_SEL = "nav.toc .wrap > a:not(.brand), .brand .cat, .gt, .eyebrow, h1, h2, h3, p, li, th, td, option, button, label.ctl > span:first-child, .ctarow > span, .ctarow > a, .formula, svg text, footer .wrap > span:not(.utn-logo):not(.logo-text), .loading";
+const I18N_SKIP = "#fxSlices, #atlas, #v3Legend, #v3Cbar, #v3Labels, #fxMode, #fxInfo, #fxNote, #atlasNote, #dispNote, #fxPlay, #langSw, #simCmd, #fcAt, #fcBt, #gAl, #gBl, #fxFreqL";
+const I18N = { items: [], attrs: [], title: "" };
+function i18nInit() {
+  I18N.title = document.title;
+  for (const el of document.querySelectorAll(I18N_SEL)) if (!el.closest(I18N_SKIP)) I18N.items.push({ el, es: el.innerHTML.trim(), cur: "es" });
+  for (const el of document.querySelectorAll("[aria-label], [title]")) {
+    if (el.closest(I18N_SKIP)) continue;
+    for (const at of ["aria-label", "title"]) if (el.hasAttribute(at)) I18N.attrs.push({ el, at, es: el.getAttribute(at) });
+  }
+}
+// English HTML for a Spanish one: the dictionary, else formulas only need sen → sin
+function i18nEn(es) {
+  const en = (window.I18N_EN || {})[es];
+  if (en !== undefined) return en;
+  return es.includes("\\sen") ? es.replaceAll("\\sen", "\\sin") : null;
+}
+function i18nApply() {
+  document.documentElement.lang = LANG;
+  document.title = tr(I18N.title, (window.I18N_EN || {})[I18N.title] || I18N.title);
+  for (const it of I18N.items) {
+    if (it.cur === LANG) continue;
+    const en = i18nEn(it.es); if (en === null) continue;
+    it.el.innerHTML = LANG === "en" ? en : it.es; it.cur = LANG;
+    if (/\\[([]/.test(it.el.innerHTML)) texify(it.el);
+  }
+  for (const it of I18N.attrs) { const en = (window.I18N_EN || {})[it.es]; if (en !== undefined) it.el.setAttribute(it.at, LANG === "en" ? en : it.es); }
+}
+// switch: static text, then everything drawn from JS
+function setLang(l) {
+  LANG = l;
+  try { localStorage.setItem("lang", l); } catch (e) {}
+  setPressed($("#langSw"), l);
+  i18nApply();
+  simCmdUpdate(); playLabel(); buildSliceRows(); fxSliceLabels(); fxModeOptions();
+  v3.geoKey = "";
+  renderPlots(); renderAtlas(); loadFx();
+}
+
+/* =============== boot =============== */
+function renderPlots() { renderCutoffCharts(); renderDispersion(); }
+function boot() {
+  i18nInit();
+  setPressed($("#langSw"), LANG); onSeg($("#langSw"), setLang);
+  if (LANG === "en") i18nApply();
+  buildLuts();
+  { const r = $("#atlasFreq"); r.min = FX_F.lo; r.max = FX_F.hi; r.step = FX_F.step; r.value = atlas.f; $("#atlasFreqO").textContent = `${atlas.f} GHz`;
+    r.oninput = e => { atlas.f = +e.target.value; $("#atlasFreqO").textContent = `${atlas.f} GHz`; renderAtlas(); }; }
+  onSeg($("#atlasQty"), v => { atlas.q = v; renderAtlas(); });
+  setupGeometry();
+  // the a/b bar shows up once section 01 reaches the upper part of the screen
+  { const dock = $("#geoDock"), first = $("#campos");
+    const upd = () => { const h = first.getBoundingClientRect().top > Math.min(160, innerHeight * 0.4); if (dock.hidden !== h) dock.hidden = h; };
+    addEventListener("scroll", upd, { passive: true }); addEventListener("resize", upd); upd(); }
+  $("#dispMetric").onchange = renderDispersion;
+  renderPlots(); renderAtlas(); setupFx();
+  let rt = 0; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { renderAtlas(); drawFx(); }, 150); });
+}
+boot();
+</script>

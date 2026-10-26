@@ -1,0 +1,5 @@
+/* Serif (formal reports only): Computer Modern Serif self-hosted in tokens/fonts-serif.css, STIX Two Text as fallback.
+   Brand font is Arial (system font, declared in the PPTX theme for both major and minor fonts).
+   Arimo is the metric-compatible open substitute, loaded so non-Arial systems render identical line breaks. */
+@import url('https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,700;1,400&display=swap');

@@ -1,0 +1,36 @@
+:root{
+/* Base palette — from theme "Informe de avance — Template UTN.BA" */
+--utn-red:#BE0F34;          /* accent1 · bordó UTN.BA */
+--utn-ink:#1E120D;          /* dk1 · warm near-black */
+--utn-paper:#FBFAF8;        /* lt1 · warm off-white slide bg */
+--utn-umber-700:#554C48;    /* dk2 */
+--utn-umber-600:#6B6460;    /* accent2 · secondary text */
+--utn-umber-500:#766F6B;    /* accent5 */
+--utn-umber-400:#98928E;    /* accent6 */
+--utn-slate-400:#9AA0A6;    /* accent4 · cool grey */
+--utn-stone-300:#D9D4CE;    /* accent3 · hairlines, pending */
+--utn-stone-200:#E5E3E1;    /* lt2 */
+--utn-stone-150:#E9E8E6;    /* table header fill */
+--utn-stone-100:#F1EEEA;    /* panel fill */
+--utn-grid-strong:#BAB9B8;  /* table header borders */
+--utn-grid:#C8C7C6;         /* table cell borders */
+
+/* Semantic */
+--surface-page:var(--utn-paper);
+--surface-panel:var(--utn-stone-100);
+--surface-table-head:var(--utn-stone-150);
+--text-primary:var(--utn-ink);
+--text-secondary:var(--utn-umber-600);
+--text-accent:var(--utn-red);
+--text-on-accent:var(--utn-paper);
+--border-strong:var(--utn-ink);
+--border-hairline:var(--utn-stone-300);
+--border-grid:var(--utn-grid);
+--border-grid-strong:var(--utn-grid-strong);
+--accent:var(--utn-red);
+
+/* Stage states (cronograma) */
+--stage-done:var(--utn-ink);
+--stage-current:var(--utn-red);
+--stage-pending:var(--utn-stone-300);
+}

@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.aedt
+*.aedtresults/
+*.lock
+.venv/
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store

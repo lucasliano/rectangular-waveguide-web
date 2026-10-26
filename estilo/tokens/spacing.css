@@ -1,0 +1,32 @@
+:root{
+/* 1920×1080 slide geometry (from template, emu → px) */
+--slide-w:1920px;
+--slide-h:1080px;
+--slide-margin:128px;        /* left/right/top margin */
+--slide-content-w:1664px;    /* 1920 − 2×128 */
+--slide-content-top:292px;   /* first content row */
+--slide-title-top:173.5px;
+--slide-footer-top:975px;
+--accent-bar-w:16px;
+--accent-bar-h:112px;        /* header marker; cover/closing uses full height */
+
+--space-1:8px;
+--space-2:16px;
+--space-3:24px;
+--space-4:32px;
+--space-5:40px;              /* panel inner padding */
+--space-6:48px;
+--space-8:64px;
+
+--cell-pad-x:16px;
+--cell-pad-y:18px;
+
+--rule-hair:1px;             /* 0.75pt hairline #D9D4CE */
+--rule-grid:2px;             /* 1pt table borders */
+--rule-strong:2px;           /* 1pt ink section rule */
+--rule-accent:4px;           /* 2pt panel top / metric top */
+--rule-stage:6px;            /* 3pt cronograma stage bar */
+
+--radius-none:0;             /* the system is square-cornered throughout */
+--shadow-none:none;
+}
